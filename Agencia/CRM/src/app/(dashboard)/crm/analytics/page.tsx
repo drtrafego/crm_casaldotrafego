@@ -18,7 +18,7 @@ export default async function AnalyticsPage() {
     return parseFloat(clean) || 0;
   };
 
-  const fechadoColumn = columns.find(c => {
+  const fechadoColumn = columns.find((c: { title: string; id: string }) => {
       const title = c.title.toLowerCase().trim();
       return title.includes("fechado") || title.includes("won") || title.includes("ganho");
   });
