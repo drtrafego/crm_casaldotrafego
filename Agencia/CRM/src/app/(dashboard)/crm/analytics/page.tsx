@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "../../../../components/ui/card";
 import { getLeads, getColumns } from "../../../../server/actions/leads";
+import { Lead, Column } from "@/server/db/schema";
 
 export const dynamic = 'force-dynamic';
 
@@ -18,21 +19,21 @@ export default async function AnalyticsPage() {
     return parseFloat(clean) || 0;
   };
 
-  const fechadoColumn = columns.find((c: { title: string; id: string }) => {
+  const fechadoColumn = columns.find((c: Column) => {
       const title = c.title.toLowerCase().trim();
       return title.includes("fechado") || title.includes("won") || title.includes("ganho");
   });
 
   const wonLeads = fechadoColumn 
-    ? leads.filter(l => l.columnId === fechadoColumn.id)
+    ? leads.filter((l: Lead) => l.columnId === fechadoColumn.id)
     : [];
     
-  const totalRevenue = wonLeads.reduce((sum, lead) => {
+  const totalRevenue = wonLeads.reduce((sum: number, lead: Lead) => {
     return sum + parseValue(lead.value);
   }, 0);
 
-  const leadsByColumn = columns.map(col => {
-    const count = leads.filter(l => l.columnId === col.id).length;
+  const leadsByColumn = columns.map((col: Column) => {
+    const count = leads.filter((l: Lead) => l.columnId === col.id).length;
     return {
       id: col.id,
       name: col.title,
