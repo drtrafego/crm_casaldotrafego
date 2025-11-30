@@ -46,7 +46,7 @@ export default async function CalendarPage() {
         {/* Days Grid */}
         <div className="flex-1 grid grid-cols-7 auto-rows-fr overflow-y-auto">
           {days.map((day, dayIdx) => {
-              const dayLeads = leads.filter(l => isSameDay(new Date(l.createdAt), day));
+              const dayLeads = leads.filter((l: any) => isSameDay(new Date(l.createdAt), day));
               const isCurrentMonth = isSameMonth(day, monthStart);
 
               return (
