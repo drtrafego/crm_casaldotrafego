@@ -1,4 +1,4 @@
-import { getLeads } from "@/server/actions/leads";
+import { getLeads } from "../../../../server/actions/leads";
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isSameDay, addDays, startOfWeek, endOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
