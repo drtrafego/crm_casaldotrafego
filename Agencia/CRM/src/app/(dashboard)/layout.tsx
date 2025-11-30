@@ -1,5 +1,5 @@
-import { CrmSidebar } from "@/components/layout/crm-sidebar";
-import { stackServerApp } from "@/stack";
+import { CrmSidebar } from "../../components/layout/crm-sidebar";
+import { stackServerApp } from "../../stack";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
