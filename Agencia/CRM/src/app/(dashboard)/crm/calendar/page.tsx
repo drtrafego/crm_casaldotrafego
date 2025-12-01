@@ -1,4 +1,5 @@
 import { getLeads } from "@/server/actions/leads";
+import { Lead } from "@/server/db/schema";
 import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isSameDay, addDays, startOfWeek, endOfWeek } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -7,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 export const dynamic = 'force-dynamic';
 
 export default async function CalendarPage() {
-  const leads = await getLeads();
+  const leads: Lead[] = await getLeads();
   
   const today = new Date();
   const monthStart = startOfMonth(today);
@@ -45,8 +46,8 @@ export default async function CalendarPage() {
 
         {/* Days Grid */}
         <div className="flex-1 grid grid-cols-7 auto-rows-fr overflow-y-auto">
-          {days.map((day: any, dayIdx: number) => {
-              const dayLeads = leads.filter((l: any) => isSameDay(new Date(l.createdAt), day));
+          {days.map((day: Date, dayIdx: number) => {
+              const dayLeads = leads.filter((l: Lead) => isSameDay(new Date(l.createdAt), day));
               const isCurrentMonth = isSameMonth(day, monthStart);
 
               return (
@@ -73,7 +74,7 @@ export default async function CalendarPage() {
                     </div>
                     
                     <div className="space-y-1">
-                        {dayLeads.map((lead: any) => (
+                        {dayLeads.map((lead: Lead) => (
                             <div key={lead.id} className="text-xs p-1 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800 truncate">
                                 {lead.name}
                             </div>

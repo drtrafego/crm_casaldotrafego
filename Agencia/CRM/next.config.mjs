@@ -1,13 +1,10 @@
+import { fileURLToPath } from 'url';
+import path from 'path';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  typescript: {
-    // !! PERIGO: Ignora erros para fazer o build passar de qualquer jeito !!
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    // Ignora o "corretor de estilo"
-    ignoreDuringBuilds: true,
-  },
   images: {
     remotePatterns: [
       {
@@ -16,6 +13,10 @@ const nextConfig = {
       },
     ],
   },
+  turbopack: {
+    root: __dirname,
+  },
+  outputFileTracingRoot: __dirname,
 };
 
 export default nextConfig;
