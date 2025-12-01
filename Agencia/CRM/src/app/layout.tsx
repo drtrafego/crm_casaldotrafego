@@ -26,17 +26,25 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
   return (
     <html lang="en" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <StackProvider app={stackServerApp}>
+        {stackEnabled ? (
+          <StackProvider app={stackServerApp}>
+            <TooltipProvider>
+              {children}
+              <SpeedInsights />
+            </TooltipProvider>
+          </StackProvider>
+        ) : (
           <TooltipProvider>
             {children}
             <SpeedInsights />
           </TooltipProvider>
-        </StackProvider>
+        )}
       </body>
     </html>
   );

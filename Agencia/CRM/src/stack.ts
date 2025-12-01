@@ -1,5 +1,7 @@
 import { StackServerApp } from "@stackframe/stack";
 
-export const stackServerApp = new StackServerApp({
-  tokenStore: "nextjs-cookie",
-});
+const projectId = process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
+
+export const stackServerApp: any = projectId
+  ? new StackServerApp({ tokenStore: "nextjs-cookie" })
+  : { getUser: async () => undefined };

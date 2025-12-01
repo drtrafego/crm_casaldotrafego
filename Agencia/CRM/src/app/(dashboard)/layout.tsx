@@ -7,10 +7,12 @@ export default async function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const user = await stackServerApp.getUser();
-
-  if (!user) {
-    redirect("/login");
+  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
+  if (stackEnabled) {
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      redirect("/login");
+    }
   }
 
   return (

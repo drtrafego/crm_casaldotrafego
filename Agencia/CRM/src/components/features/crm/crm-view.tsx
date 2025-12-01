@@ -225,9 +225,11 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode }:
               </Button>
           </div>
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
-          <div className="hidden sm:block">
-            <UserButton />
-          </div>
+          {stackEnabled && (
+            <div className="hidden sm:block">
+              <UserButton />
+            </div>
+          )}
           {mounted && (
             <>
               <DateRangePickerWithPresets date={dateRange} setDate={setDateRange} />
@@ -316,3 +318,4 @@ function StatsCard({
     </Card>
   );
 }
+  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
