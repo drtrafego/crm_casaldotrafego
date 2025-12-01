@@ -95,7 +95,7 @@ export default function SettingsPage() {
                         <pre>{`{
   "name": "Nome do Cliente",
   "email": "cliente@email.com",
-  "phone": "11999999999",
+  "whatsapp": "11999999999",
   "company": "Empresa LTDA",
   "notes": "Interesse no plano premium...",
   "campaignSource": "Instagram Ads"
@@ -110,7 +110,7 @@ export default function SettingsPage() {
                          </Button>
                     </div>
                     <p className="text-xs text-slate-500 pt-2">
-                        * O campo <code>name</code> e (<code>email</code> ou <code>phone</code>) são obrigatórios.
+                        * O campo <code>name</code> e (<code>email</code> ou <code>whatsapp</code>) são obrigatórios.
                     </p>
                 </div>
             </CardContent>

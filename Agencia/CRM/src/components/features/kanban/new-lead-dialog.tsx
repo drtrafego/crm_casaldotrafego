@@ -63,8 +63,8 @@ export function NewLeadDialog() {
               <Input id="name" name="name" placeholder="Nome do cliente" required className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="phone" className="text-slate-700">Whatsapp (Principal)</Label>
-              <Input id="phone" name="phone" placeholder="(11) 99999-9999" required className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
+              <Label htmlFor="whatsapp" className="text-slate-700">Whatsapp (Principal)</Label>
+              <Input id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999" required className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
             </div>
           </div>
           

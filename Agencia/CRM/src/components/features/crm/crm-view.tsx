@@ -79,7 +79,7 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode }:
             l.name.toLowerCase().includes(query) || 
             l.email?.toLowerCase().includes(query) || 
             l.company?.toLowerCase().includes(query) ||
-            l.phone?.includes(query)
+            l.whatsapp?.includes(query)
         );
     }
 

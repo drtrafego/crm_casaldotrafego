@@ -16,7 +16,7 @@ export const leads = pgTable("leads", {
   name: text("name").notNull(),
   company: text("company"),
   email: text("email"),
-  phone: text("phone"),
+  whatsapp: text("whatsapp"),
   campaignSource: text("campaign_source"),
   status: text("status").notNull(), // Changed from enum to text to match column IDs or titles
   columnId: uuid("column_id").references(() => columns.id), // Link to dynamic columns

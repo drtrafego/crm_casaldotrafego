@@ -30,7 +30,7 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
   async function handleSubmit(formData: FormData) {
     const data = {
         name: formData.get("name") as string,
-        phone: formData.get("phone") as string,
+        whatsapp: formData.get("whatsapp") as string,
         email: formData.get("email") as string,
         company: formData.get("company") as string,
         notes: formData.get("notes") as string,
@@ -77,13 +77,13 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="phone" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                <Label htmlFor="whatsapp" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Phone className="h-4 w-4 text-slate-400" /> Whatsapp
                 </Label>
                 <Input 
-                  id="phone" 
-                  name="phone" 
-                  defaultValue={lead.phone || ""}
+                  id="whatsapp" 
+                  name="whatsapp" 
+                  defaultValue={lead.whatsapp || ""}
                   required
                   placeholder="(11) 99999-9999" 
                   className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors" 

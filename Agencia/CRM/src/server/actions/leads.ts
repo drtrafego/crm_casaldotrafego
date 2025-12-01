@@ -154,7 +154,7 @@ export async function createLead(formData: FormData) {
   const name = formData.get("name") as string;
   const company = formData.get("company") as string;
   const email = formData.get("email") as string;
-  const phone = formData.get("phone") as string;
+  const whatsapp = formData.get("whatsapp") as string;
   const notes = formData.get("notes") as string;
   const valueStr = formData.get("value") as string;
   const value = valueStr ? valueStr : null;
@@ -174,7 +174,7 @@ export async function createLead(formData: FormData) {
     name,
     company,
     email,
-    phone,
+    whatsapp,
     notes,
     value,
     status: 'active', // Default status, or use column title if needed

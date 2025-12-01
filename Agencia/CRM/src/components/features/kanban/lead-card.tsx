@@ -83,17 +83,17 @@ export function LeadCard({ lead }: LeadCardProps) {
                       <Button
                         variant="ghost"
                         size="icon"
-                        disabled={!lead.phone}
+                        disabled={!lead.whatsapp}
                         className={cn(
                           "h-6 w-6 -mt-1 transition-colors",
-                          lead.phone 
+                          lead.whatsapp 
                             ? "text-green-600 hover:text-green-700 hover:bg-green-50" 
                             : "text-slate-300 dark:text-slate-700 cursor-not-allowed"
                         )}
                         onClick={(e) => {
                           e.stopPropagation(); // Prevent opening edit dialog
-                          if (lead.phone) {
-                            window.open(getWhatsAppLink(lead.phone), '_blank');
+                          if (lead.whatsapp) {
+                            window.open(getWhatsAppLink(lead.whatsapp), '_blank');
                           }
                         }}
                       >
@@ -101,7 +101,7 @@ export function LeadCard({ lead }: LeadCardProps) {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      {lead.phone ? "Conversar no WhatsApp" : "Sem telefone cadastrado"}
+                      {lead.whatsapp ? "Conversar no WhatsApp" : "Sem WhatsApp cadastrado"}
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

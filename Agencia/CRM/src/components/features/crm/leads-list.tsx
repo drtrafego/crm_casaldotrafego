@@ -84,15 +84,15 @@ export function LeadsList({ leads, columns }: LeadsListProps) {
       },
     },
     {
-        accessorKey: "phone",
+        accessorKey: "whatsapp",
         header: "WhatsApp",
         cell: ({ row }) => {
-            const phone = row.getValue("phone") as string;
-            const whatsappLink = phone ? getWhatsAppLink(phone) : "";
+            const whatsapp = row.getValue("whatsapp") as string;
+            const whatsappLink = whatsapp ? getWhatsAppLink(whatsapp) : "";
             
             return (
                 <div className="flex items-center gap-2">
-                    {phone && whatsappLink ? (
+                    {whatsapp && whatsappLink ? (
                         <a 
                             href={whatsappLink} 
                             target="_blank" 

@@ -6,7 +6,10 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, phone, company, notes, campaignSource, organizationId } = body;
+    const { name, email, whatsapp, phone, company, notes, campaignSource, organizationId } = body;
+
+    // Support both phone and whatsapp fields in payload
+    const finalWhatsapp = whatsapp || phone;
 
     // Basic validation
     if (!name || !email) {
@@ -46,7 +49,7 @@ export async function POST(request: Request) {
     const newLead = await db.insert(leads).values({
       name,
       email,
-      phone,
+      whatsapp: finalWhatsapp,
       company,
       notes,
       campaignSource,
