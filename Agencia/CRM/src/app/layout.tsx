@@ -26,7 +26,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
+  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID && !!process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
   return (
     <html lang="en" suppressHydrationWarning>
       <body

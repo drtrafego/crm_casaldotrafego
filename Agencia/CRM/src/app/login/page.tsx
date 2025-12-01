@@ -3,7 +3,7 @@ import { stackServerApp } from "@/stack";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
-  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID;
+  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID && !!process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
   if (!stackEnabled) {
     redirect("/crm");
   }
