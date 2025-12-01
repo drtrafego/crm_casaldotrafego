@@ -53,7 +53,7 @@ export function NewLeadDialog() {
         <DialogHeader>
           <DialogTitle className="text-slate-900">Novo Lead</DialogTitle>
           <DialogDescription className="text-slate-500">
-            Preencha as informações do lead abaixo. Ele será adicionado à coluna "Novos Leads".
+            Preencha as informações do lead abaixo. Ele será adicionado à coluna &quot;Novos Leads&quot;.
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="grid gap-4 py-4">

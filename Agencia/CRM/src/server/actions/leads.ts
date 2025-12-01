@@ -18,7 +18,7 @@ export async function getColumns() {
   const orgId = await getOrgId();
   
   // First, fetch all existing columns
-  let existing = await db.query.columns.findMany({
+  const existing = await db.query.columns.findMany({
     where: eq(columns.organizationId, orgId),
     orderBy: [asc(columns.order)],
   });
