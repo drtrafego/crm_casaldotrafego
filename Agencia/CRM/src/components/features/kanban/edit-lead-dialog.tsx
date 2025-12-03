@@ -13,7 +13,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateLead } from "@/server/actions/leads";
+import { updateLeadContent } from "@/server/actions/leads";
 import { Lead } from "@/server/db/schema";
 import { User, Phone, Mail, Building2, FileText, Save, X, DollarSign, Trash2 } from "lucide-react";
 import { deleteLead } from "@/server/actions/leads";
@@ -37,7 +37,7 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
         value: formData.get("value") as string,
     };
     
-    await updateLead(lead.id, data);
+    await updateLeadContent(lead.id, data);
     onOpenChange(false);
   }
 

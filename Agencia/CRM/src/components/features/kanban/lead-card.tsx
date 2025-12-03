@@ -63,9 +63,16 @@ export function LeadCard({ lead }: LeadCardProps) {
         {...attributes} 
         {...listeners} 
         className="touch-none mb-3"
-        onClick={() => setShowEditDialog(true)}
       >
-        <Card className="group hover:shadow-md transition-all duration-200 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-grab active:cursor-grabbing">
+        <Card 
+            className="group hover:shadow-md transition-all duration-200 border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 cursor-grab active:cursor-grabbing"
+            onClick={(e) => {
+                // Prevent triggering edit if we are just finishing a drag
+                if (!isDragging) {
+                    setShowEditDialog(true);
+                }
+            }}
+        >
           <CardContent className="p-4 space-y-3">
             {/* Header with Tags */}
             <div className="flex items-start justify-between gap-2">

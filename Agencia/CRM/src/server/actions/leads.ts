@@ -202,7 +202,7 @@ export async function deleteColumn(id: string) {
     revalidatePath('/dashboard/crm');
 }
 
-export async function updateLead(id: string, data: Partial<typeof leads.$inferInsert>) {
+export async function updateLeadContent(id: string, data: Partial<typeof leads.$inferInsert>) {
     // Whitelist allowed fields to prevent accidental overwrites of critical data
     // like columnId, position, organizationId, etc.
     // Removed 'status' from whitelist to prevent any accidental status changes during edit
@@ -235,10 +235,22 @@ export async function updateLead(id: string, data: Partial<typeof leads.$inferIn
     // If nothing to update, return early
     if (Object.keys(updatePayload).length === 0) return;
 
-    console.log(`Updating lead ${id} with payload:`, updatePayload);
+    console.log(`Updating lead content ${id} with payload:`, updatePayload);
+    
+    // Verify lead exists first (optional but good for debugging)
+    const existingLead = await db.query.leads.findFirst({
+        where: eq(leads.id, id),
+        columns: { id: true, columnId: true, position: true }
+    });
+
+    if (!existingLead) {
+        console.error(`Lead ${id} not found for update`);
+        return;
+    }
 
     await db.update(leads)
         .set(updatePayload)
         .where(eq(leads.id, id));
+        
     revalidatePath('/dashboard/crm');
 }
