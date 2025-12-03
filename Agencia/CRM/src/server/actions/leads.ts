@@ -60,15 +60,21 @@ export async function getLeads() {
 
 export async function updateLeadStatus(id: string, newColumnId: string, newPosition: number) {
   // Verify ownership...
+  console.log(`[updateLeadStatus] Moving lead ${id} to column ${newColumnId} at pos ${newPosition}`);
   
-  await db.update(leads)
-    .set({ 
-      columnId: newColumnId, 
-      position: newPosition 
-    })
-    .where(eq(leads.id, id));
-    
-  revalidatePath('/dashboard/crm');
+  try {
+      await db.update(leads)
+        .set({ 
+          columnId: newColumnId, 
+          position: newPosition 
+        })
+        .where(eq(leads.id, id));
+        
+      revalidatePath('/dashboard/crm');
+  } catch (error) {
+      console.error("[updateLeadStatus] Error:", error);
+      throw error;
+  }
 }
 
 export async function createLead(formData: FormData) {
@@ -233,8 +239,8 @@ export async function updateLeadContent(id: string, data: Partial<typeof leads.$
     }
 
     // If nothing to update, return early
-    if (Object.keys(updatePayload).length === 0) return;
-
+    // Note: We might still need to update columnId/position if passed, so check that later or check data keys
+    
     console.log(`Updating lead content ${id} with payload:`, updatePayload);
     
     // Verify lead exists first (optional but good for debugging)
@@ -248,12 +254,24 @@ export async function updateLeadContent(id: string, data: Partial<typeof leads.$
         return;
     }
 
-    // Explicitly force preservation of columnId and position
-    // This prevents any DB default behavior or trigger from moving the lead
-    // @ts-ignore - forcing these fields into the update payload
-    updatePayload.columnId = existingLead.columnId;
-    // @ts-ignore - forcing these fields into the update payload
-    updatePayload.position = existingLead.position;
+    // Handle columnId and position
+    // If provided in data (from trusted client source context), use it.
+    // Otherwise, preserve existing DB value.
+    // This solves the race condition where client has moved the item (optimistic)
+    // but DB hasn't updated yet when edit happens.
+    if (data.columnId !== undefined) {
+        console.log(`[updateLeadContent] Using provided columnId: ${data.columnId}`);
+        updatePayload.columnId = data.columnId;
+    } else {
+        console.log(`[updateLeadContent] Using existing DB columnId: ${existingLead.columnId}`);
+        updatePayload.columnId = existingLead.columnId;
+    }
+
+    if (data.position !== undefined) {
+        updatePayload.position = data.position;
+    } else {
+        updatePayload.position = existingLead.position;
+    }
 
     console.log(`Final update payload for lead ${id}:`, updatePayload);
 
