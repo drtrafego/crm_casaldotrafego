@@ -105,17 +105,33 @@ export function Column({ id, title, leads, isOverlay }: ColumnProps) {
         className="p-3 pb-2 flex items-center justify-between group cursor-grab active:cursor-grabbing"
       >
         {isEditing ? (
-             <div className="flex items-center gap-2 w-full" onPointerDown={(e) => e.stopPropagation()}>
+             <div 
+                className="flex items-center gap-2 w-full" 
+                onPointerDown={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+                onMouseDown={(e) => e.stopPropagation()}
+             >
                  <Input 
                     value={editTitle} 
                     onChange={(e) => setEditTitle(e.target.value)} 
                     className="h-7 text-sm px-2"
                     autoFocus
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            handleSave();
+                        } else if (e.key === 'Escape') {
+                            setIsEditing(false);
+                            setEditTitle(title);
+                        }
+                    }}
                  />
                  <Button size="icon" variant="ghost" className="h-7 w-7" onClick={handleSave}>
                      <Check className="h-4 w-4 text-green-600" />
                  </Button>
-                 <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setIsEditing(false)}>
+                 <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {
+                     setIsEditing(false);
+                     setEditTitle(title);
+                 }}>
                      <X className="h-4 w-4 text-red-600" />
                  </Button>
              </div>

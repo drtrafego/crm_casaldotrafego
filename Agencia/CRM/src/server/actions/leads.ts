@@ -127,6 +127,7 @@ export async function createColumn(title: string) {
 }
 
 export async function updateColumn(id: string, title: string) {
+    console.log(`Updating column ${id} to title: ${title}`);
     await db.update(columns)
         .set({ title })
         .where(eq(columns.id, id));
