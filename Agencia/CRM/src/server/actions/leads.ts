@@ -2,7 +2,7 @@
 
 import { db } from "@/lib/db";
 import { leads, columns } from "@/server/db/schema";
-import { eq, asc, desc, and, ne, lt, gt } from "drizzle-orm";
+import { eq, asc, desc, and, ne, lt, gt, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
 import { stackServerApp } from "@/stack";
@@ -26,7 +26,7 @@ export async function getColumns() {
   // Define the expected standard columns
   const expectedTitles = ["Novos Leads", "Em Contato", "Não Retornou", "Proposta Enviada", "Fechado", "Perdido"];
 
-  // 1. Handle empty state
+  // 1. Handle empty state - Only initialize if NO columns exist
   if (existing.length === 0) {
       const inserted = await db.insert(columns).values(
           expectedTitles.map((title, i) => ({
@@ -38,87 +38,8 @@ export async function getColumns() {
       return inserted.sort((a, b) => a.order - b.order);
   }
 
-  // 2. Cleanup duplicates and ensure correct order/titles
-  // Identify columns that match our expected titles
-  const keptColumns: typeof existing = [];
-  const toDeleteIds: string[] = [];
-  
-  // Map expected titles to existing columns
-  // We do this carefully to avoid duplicates
-  for (const title of expectedTitles) {
-      // Find all columns with this title (or close to it, e.g. "Ganho" -> "Fechado")
-      let matches = existing.filter(c => c.title === title);
-      
-      // Special case: Handle "Ganho" -> "Fechado" migration if "Fechado" doesn't exist yet
-      if (title === "Fechado" && matches.length === 0) {
-          const ganhoMatches = existing.filter(c => c.title === "Ganho");
-          if (ganhoMatches.length > 0) {
-              matches = ganhoMatches;
-              // We will update their title later
-          }
-      }
-
-      if (matches.length > 0) {
-          // Keep the first one, mark others for deletion (unless they have leads? For now assume safe to delete dupes created by bug)
-          // Ideally we should check leads, but for this fix we assume the "main" one is the one we keep.
-          const [keep, ...rest] = matches;
-          keptColumns.push({ ...keep, title }); // Ensure title is updated (e.g. Ganho -> Fechado)
-          toDeleteIds.push(...rest.map(c => c.id));
-          
-          // If title changed, update it in DB
-          if (keep.title !== title) {
-              await db.update(columns).set({ title }).where(eq(columns.id, keep.id));
-          }
-      } else {
-          // Missing column, create it
-          const [newCol] = await db.insert(columns).values({
-              title,
-              organizationId: orgId,
-              order: -1, // Will be fixed below
-          }).returning();
-          keptColumns.push(newCol);
-      }
-  }
-
-  // 3. Handle "extra" columns that are not in our expected list?
-  // The user said "As colunas estão quase todas agora Não Retornou".
-  // This suggests we might have renamed them? Or maybe just created many.
-  // Any column in `existing` that is NOT in `keptColumns` and NOT in `toDeleteIds` should probably be deleted or kept?
-  // If the user created custom columns, we should keep them?
-  // The user said "tinha pedido apenas pra adicionar uma coluna no meio de outras".
-  // Let's assume for now we only want the standard set to fix the mess.
-  const keptIds = new Set(keptColumns.map(c => c.id));
-  const extras = existing.filter(c => !keptIds.has(c.id) && !toDeleteIds.includes(c.id));
-  
-  // Delete duplicates and extras (if we want to enforce strict schema for now to fix the bug)
-  // CAREFUL: Deleting extras might delete user data.
-  // However, the user complaint suggests the extras are "Não Retornou" duplicates.
-  // Let's delete anything that is a duplicate of "Não Retornou" specifically.
-  const duplicateNaoRetornou = extras.filter(c => c.title === "Não Retornou");
-  toDeleteIds.push(...duplicateNaoRetornou.map(c => c.id));
-  
-  // Execute deletions
-  if (toDeleteIds.length > 0) {
-      // Move leads from deleted columns to the first column (Novos Leads) to be safe?
-      // Or just delete. Given it's a "bug" fix, likely these columns are empty or contain duplicate data.
-      // Let's move leads to the first kept column just in case.
-      const fallbackColId = keptColumns[0].id;
-      for (const id of toDeleteIds) {
-          await db.update(leads).set({ columnId: fallbackColId }).where(eq(leads.columnId, id));
-          await db.delete(columns).where(eq(columns.id, id));
-      }
-  }
-
-  // 4. Re-order columns strictly
-  for (let i = 0; i < keptColumns.length; i++) {
-      const col = keptColumns[i];
-      if (col.order !== i) {
-          await db.update(columns).set({ order: i }).where(eq(columns.id, col.id));
-          col.order = i;
-      }
-  }
-
-  return keptColumns.sort((a, b) => a.order - b.order);
+  // Return existing columns as-is, just sorted
+  return existing.sort((a, b) => a.order - b.order);
 }
 
 export async function deleteLead(id: string) {
@@ -206,6 +127,23 @@ export async function updateColumn(id: string, title: string) {
     revalidatePath('/dashboard/crm');
 }
 
+export async function updateColumnOrder(orderedIds: string[]) {
+    const orgId = await getOrgId();
+    
+    // Use a transaction to ensure atomicity if possible, or just parallel updates
+    // For simplicity, we iterate and update. In production, use a single SQL query with CASE/WHEN or transaction.
+    
+    await db.transaction(async (tx) => {
+        for (let i = 0; i < orderedIds.length; i++) {
+            await tx.update(columns)
+                .set({ order: i })
+                .where(and(eq(columns.id, orderedIds[i]), eq(columns.organizationId, orgId)));
+        }
+    });
+    
+    revalidatePath('/dashboard/crm');
+}
+
 export async function deleteColumn(id: string) {
     const orgId = await getOrgId();
     
@@ -265,26 +203,40 @@ export async function deleteColumn(id: string) {
 }
 
 export async function updateLead(id: string, data: Partial<typeof leads.$inferInsert>) {
-    // Ensure numeric fields are properly handled
-    const cleanData = { ...data };
+    // Whitelist allowed fields to prevent accidental overwrites of critical data
+    // like columnId, position, organizationId, etc.
+    const allowedFields: (keyof typeof leads.$inferInsert)[] = [
+        'name', 
+        'company', 
+        'email', 
+        'whatsapp', 
+        'notes', 
+        'value', 
+        'status'
+    ];
     
-    // Handle empty strings or whitespace for value
-    if (typeof cleanData.value === 'string' && cleanData.value.trim() === '') {
-        cleanData.value = null;
-    } else if (cleanData.value === "") {
-        // Fallback for non-trimmed empty string if type wasn't string (unlikely but safe)
-        cleanData.value = null;
+    const updatePayload: Partial<typeof leads.$inferInsert> = {};
+    
+    // Only copy allowed fields
+    for (const key of allowedFields) {
+        if (data[key] !== undefined) {
+            // @ts-ignore - dynamic assignment
+            updatePayload[key] = data[key];
+        }
     }
 
-    // Remove undefined fields to avoid overwriting with null/undefined if not intended
-    Object.keys(cleanData).forEach(key => {
-        if (cleanData[key as keyof typeof cleanData] === undefined) {
-            delete cleanData[key as keyof typeof cleanData];
-        }
-    });
+    // Handle empty strings or whitespace for value
+    if (typeof updatePayload.value === 'string' && updatePayload.value.trim() === '') {
+        updatePayload.value = null;
+    } else if (updatePayload.value === "") {
+        updatePayload.value = null;
+    }
+
+    // If nothing to update, return early
+    if (Object.keys(updatePayload).length === 0) return;
 
     await db.update(leads)
-        .set(cleanData)
+        .set(updatePayload)
         .where(eq(leads.id, id));
     revalidatePath('/dashboard/crm');
 }

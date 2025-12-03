@@ -1,11 +1,13 @@
-'use client';import { SortableContext } from "@dnd-kit/sortable";
+'use client';import { SortableContext, useSortable } from "@dnd-kit/sortable";
 import { useDroppable } from "@dnd-kit/core";
+import { CSS } from "@dnd-kit/utilities";
 import { LeadCard } from "./lead-card";
 import { Lead } from "@/server/db/schema";
 import { useMemo, useState } from "react";
-import { updateColumn, deleteColumn } from "@/server/actions/leads";import { Button } from "@/components/ui/button";
+import { updateColumn, deleteColumn } from "@/server/actions/leads";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Check, X, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { Check, X, MoreHorizontal, Pencil, Trash2, GripVertical } from "lucide-react";
 import { cn } from "@/lib/utils";
 import {
   DropdownMenu,
@@ -26,7 +28,31 @@ export function Column({ id, title, leads }: ColumnProps) {
   
   const isDefault = title === "Novos Leads";
 
-  const { setNodeRef } = useDroppable({
+  // Sortable hook for the column itself
+  const {
+    setNodeRef: setSortableRef,
+    attributes,
+    listeners,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({
+    id: id,
+    data: {
+        type: "Column",
+        columnId: id,
+    }
+  });
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+  };
+
+  // Droppable hook for leads within the column
+  // Note: We might not strictly need useDroppable if we rely on SortableContext logic in board,
+  // but it's good for detecting "empty" column drops if not hitting a lead.
+  const { setNodeRef: setDroppableRef } = useDroppable({
     id: id,
     data: {
         type: "Column",
@@ -62,14 +88,23 @@ export function Column({ id, title, leads }: ColumnProps) {
   }
 
   return (
-    <div className={cn(
-        "flex flex-col h-full w-[300px] min-w-[300px] bg-slate-100/80 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-700/50",
-        isDeleting && "opacity-50 pointer-events-none"
-    )}>
+    <div 
+        ref={setSortableRef}
+        style={style}
+        className={cn(
+            "flex flex-col h-full w-[300px] min-w-[300px] bg-slate-100/80 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-700/50",
+            isDragging && "opacity-50 border-dashed border-indigo-500 bg-indigo-50/50 dark:bg-indigo-900/20",
+            isDeleting && "opacity-50 pointer-events-none"
+        )}
+    >
       {/* Column Header */}
-      <div className="p-3 pb-2 flex items-center justify-between group">
+      <div 
+        {...attributes} 
+        {...listeners}
+        className="p-3 pb-2 flex items-center justify-between group cursor-grab active:cursor-grabbing"
+      >
         {isEditing ? (
-             <div className="flex items-center gap-2 w-full">
+             <div className="flex items-center gap-2 w-full" onPointerDown={(e) => e.stopPropagation()}>
                  <Input 
                     value={editTitle} 
                     onChange={(e) => setEditTitle(e.target.value)} 
@@ -86,36 +121,42 @@ export function Column({ id, title, leads }: ColumnProps) {
         ) : (
             <>
                 <h3 className="font-semibold text-sm text-slate-700 flex items-center gap-2">
+                    <GripVertical className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                     {title}
                     <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-xs font-medium">
                         {leads.length}
                     </span>
                 </h3>
-                {!isDefault && (
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-6 w-6 transition-opacity">
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Renomear
-                            </DropdownMenuItem>
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            className="h-6 w-6 transition-opacity"
+                            onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on menu click
+                        >
+                            <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Renomear
+                        </DropdownMenuItem>
+                        {!isDefault && (
                             <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
                                 <Trash2 className="mr-2 h-4 w-4" />
                                 Excluir
                             </DropdownMenuItem>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                )}
+                        )}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </>
         )}
       </div>
 
       {/* Droppable Area */}
-      <div ref={setNodeRef} className="flex-1 p-2 overflow-hidden">
+      <div ref={setDroppableRef} className="flex-1 p-2 overflow-hidden">
          <div className="h-full pr-3 overflow-y-auto custom-scrollbar">
             <SortableContext items={leadIds}>
             <div className="flex flex-col gap-3 pb-4">

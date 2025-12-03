@@ -16,13 +16,14 @@ import {
   DragEndEvent,
   DropAnimation,
   defaultDropAnimationSideEffects,
+  closestCenter,
 } from "@dnd-kit/core";
-import { sortableKeyboardCoordinates, arrayMove } from "@dnd-kit/sortable";
-import { useState, useTransition, useEffect } from "react";
+import { sortableKeyboardCoordinates, arrayMove, SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
+import { useState, useTransition, useEffect, useMemo } from "react";
 import { Column } from "./column";
 import { LeadCard } from "./lead-card";
 import { Lead, Column as DbColumn } from "@/server/db/schema";
-import { updateLeadStatus } from "@/server/actions/leads";
+import { updateLeadStatus, updateColumnOrder } from "@/server/actions/leads";
 import { createPortal } from "react-dom";
 import { createColumn } from "@/server/actions/leads";
 import { Button } from "@/components/ui/button";
@@ -47,19 +48,27 @@ const dropAnimation: DropAnimation = {
   }),
 };
 
-export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
-  // Optimistic state is now controlled or falls back to local
+export function Board({ initialLeads, columns: initialColumns, onLeadsChange }: BoardProps) {
+  // Optimistic state for leads
   const [localLeads, setLocalLeads] = useState<Lead[]>(initialLeads);
-  
-  // Use props leads if provided (controlled mode), otherwise local
   const leads = localLeads;
   
+  // Optimistic state for columns
+  const [localColumns, setLocalColumns] = useState<DbColumn[]>(initialColumns);
+
   useEffect(() => {
     setLocalLeads(initialLeads);
   }, [initialLeads]);
 
+  useEffect(() => {
+    setLocalColumns(initialColumns);
+  }, [initialColumns]);
+
   const [activeLead, setActiveLead] = useState<Lead | null>(null);
+  const [activeColumn, setActiveColumn] = useState<DbColumn | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  const columnIds = useMemo(() => localColumns.map((c) => c.id), [localColumns]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -74,12 +83,18 @@ export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
 
   function findColumn(id: string | undefined) {
       if (!id) return null;
-      if (columns.some(c => c.id === id)) return id;
+      if (localColumns.some(c => c.id === id)) return id;
       return leads.find(l => l.id === id)?.columnId || null;
   }
 
   function handleDragStart(event: DragStartEvent) {
     const { active } = event;
+    if (active.data.current?.type === "Column") {
+        const column = localColumns.find((c) => c.id === active.id);
+        if (column) setActiveColumn(column);
+        return;
+    }
+
     const lead = leads.find((l) => l.id === active.id);
     if (lead) {
       setActiveLead(lead);
@@ -91,6 +106,9 @@ export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
     const overId = over?.id;
 
     if (!overId || active.id === overId) return;
+
+    // Ignore drag over if dragging a column
+    if (active.data.current?.type === "Column") return;
 
     const activeColumn = findColumn(active.id as string);
     const overColumn = findColumn(overId as string);
@@ -141,6 +159,27 @@ export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
     const activeId = active.id as string;
     const overId = over?.id as string;
 
+    // Handle Column Dragging
+    if (active.data.current?.type === "Column") {
+        if (!over || activeId === overId) {
+            setActiveColumn(null);
+            return;
+        }
+
+        const activeIndex = localColumns.findIndex((c) => c.id === activeId);
+        const overIndex = localColumns.findIndex((c) => c.id === overId);
+
+        if (activeIndex !== overIndex) {
+            const reordered = arrayMove(localColumns, activeIndex, overIndex);
+            setLocalColumns(reordered);
+            startTransition(() => {
+                updateColumnOrder(reordered.map(c => c.id));
+            });
+        }
+        setActiveColumn(null);
+        return;
+    }
+
     const activeColumn = findColumn(activeId);
     const overColumn = findColumn(overId);
 
@@ -159,7 +198,7 @@ export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
     let newIndex = overIndex;
     
     // If dropped on the column itself (empty or end)
-    if (columns.some(c => c.id === overId)) {
+    if (localColumns.some(c => c.id === overId)) {
         newIndex = overItems.length;
     } else if (overIndex === -1) {
         newIndex = overItems.length; // fallback
@@ -211,22 +250,24 @@ export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
     >
-      <div className="flex gap-4 overflow-x-auto p-4 pb-2 items-start">
-        {columns.map((col) => (
-          <Column
-            key={col.id}
-            id={col.id}
-            title={col.title}
-            leads={leads
-                .filter((l) => l.columnId === col.id)
-                .sort((a,b) => {
-                    if (a.position !== b.position) return a.position - b.position;
-                    // Tie-breaker: Newest first or by ID for stability
-                    return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-                })
-            }
-          />
-        ))}
+      <div className="flex gap-4 overflow-x-auto p-4 pb-2 items-start h-full">
+        <SortableContext items={columnIds} strategy={horizontalListSortingStrategy}>
+            {localColumns.map((col) => (
+            <Column
+                key={col.id}
+                id={col.id}
+                title={col.title}
+                leads={leads
+                    .filter((l) => l.columnId === col.id)
+                    .sort((a,b) => {
+                        if (a.position !== b.position) return a.position - b.position;
+                        // Tie-breaker: Newest first or by ID for stability
+                        return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
+                    })
+                }
+            />
+            ))}
+        </SortableContext>
         <Dialog open={isCreateColumnOpen} onOpenChange={setIsCreateColumnOpen}>
             <DialogTrigger asChild>
                 <Button variant="outline" className="h-[50px] min-w-[300px] border-dashed border-2 hover:border-solid hover:bg-slate-50 dark:hover:bg-slate-900">
@@ -254,6 +295,13 @@ export function Board({ initialLeads, columns, onLeadsChange }: BoardProps) {
       {createPortal(
         <DragOverlay dropAnimation={dropAnimation}>
           {activeLead ? <LeadCard lead={activeLead} /> : null}
+          {activeColumn ? (
+            <Column 
+                id={activeColumn.id} 
+                title={activeColumn.title} 
+                leads={leads.filter(l => l.columnId === activeColumn.id)} 
+            />
+          ) : null}
         </DragOverlay>,
         document.body
       )}
