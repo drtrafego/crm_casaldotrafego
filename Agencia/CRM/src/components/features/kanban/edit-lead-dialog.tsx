@@ -37,10 +37,12 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
         company: formData.get("company") as string,
         notes: formData.get("notes") as string,
         value: formData.get("value") as string,
-        columnId: formData.get("columnId") as string,
-        position: Number(formData.get("position")),
+        columnId: lead.columnId,
+        position: lead.position,
     };
     
+    console.log("Submitting edit with location:", { columnId: data.columnId, position: data.position });
+
     await updateLeadContent(lead.id, data);
     onOpenChange(false);
     router.refresh(); // Force a full route refresh to ensure server data is in sync
@@ -67,8 +69,6 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
         </DialogHeader>
         
         <form action={handleSubmit}>
-          <input type="hidden" name="columnId" value={lead.columnId || ""} />
-          <input type="hidden" name="position" value={lead.position} />
           <div className="p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
