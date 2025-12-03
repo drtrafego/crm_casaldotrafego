@@ -17,6 +17,7 @@ import { updateLeadContent } from "@/server/actions/leads";
 import { Lead } from "@/server/db/schema";
 import { User, Phone, Mail, Building2, FileText, Save, X, DollarSign, Trash2 } from "lucide-react";
 import { deleteLead } from "@/server/actions/leads";
+import { useRouter } from "next/navigation";
 
 interface EditLeadDialogProps {
   lead: Lead;
@@ -26,6 +27,7 @@ interface EditLeadDialogProps {
 
 export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   async function handleSubmit(formData: FormData) {
     const data = {
@@ -39,6 +41,7 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
     
     await updateLeadContent(lead.id, data);
     onOpenChange(false);
+    router.refresh(); // Force a full route refresh to ensure server data is in sync
   }
 
   async function handleDelete() {
