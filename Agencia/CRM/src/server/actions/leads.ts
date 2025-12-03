@@ -134,6 +134,7 @@ export async function updateColumn(id: string, title: string) {
 }
 
 export async function updateColumnOrder(orderedIds: string[]) {
+    console.log("Updating column order:", orderedIds);
     const orgId = await getOrgId();
     
     // Use a transaction to ensure atomicity if possible, or just parallel updates

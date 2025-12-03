@@ -161,6 +161,7 @@ export function Board({ initialLeads, columns: initialColumns, onLeadsChange }: 
 
     // Handle Column Dragging
     if (active.data.current?.type === "Column") {
+        console.log("Column drag end", active.id, over?.id);
         if (!over || activeId === overId) {
             setActiveColumn(null);
             return;
@@ -168,6 +169,8 @@ export function Board({ initialLeads, columns: initialColumns, onLeadsChange }: 
 
         const activeIndex = localColumns.findIndex((c) => c.id === activeId);
         const overIndex = localColumns.findIndex((c) => c.id === overId);
+
+        console.log("Column reorder indexes", activeIndex, overIndex);
 
         if (activeIndex !== overIndex) {
             const reordered = arrayMove(localColumns, activeIndex, overIndex);
@@ -300,6 +303,7 @@ export function Board({ initialLeads, columns: initialColumns, onLeadsChange }: 
                 id={activeColumn.id} 
                 title={activeColumn.title} 
                 leads={leads.filter(l => l.columnId === activeColumn.id)} 
+                isOverlay
             />
           ) : null}
         </DragOverlay>,

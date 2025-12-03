@@ -20,9 +20,10 @@ interface ColumnProps {
   id: string;
   title: string;
   leads: Lead[];
+  isOverlay?: boolean;
 }
 
-export function Column({ id, title, leads }: ColumnProps) {
+export function Column({ id, title, leads, isOverlay }: ColumnProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editTitle, setEditTitle] = useState(title);
   
@@ -41,7 +42,8 @@ export function Column({ id, title, leads }: ColumnProps) {
     data: {
         type: "Column",
         columnId: id,
-    }
+    },
+    disabled: isOverlay
   });
 
   const style = {
@@ -50,14 +52,13 @@ export function Column({ id, title, leads }: ColumnProps) {
   };
 
   // Droppable hook for leads within the column
-  // Note: We might not strictly need useDroppable if we rely on SortableContext logic in board,
-  // but it's good for detecting "empty" column drops if not hitting a lead.
   const { setNodeRef: setDroppableRef } = useDroppable({
     id: id,
     data: {
         type: "Column",
         columnId: id,
-    }
+    },
+    disabled: isOverlay
   });
 
   const leadIds = useMemo(() => leads.map((lead) => lead.id), [leads]);
