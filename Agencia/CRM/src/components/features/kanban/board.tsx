@@ -42,9 +42,10 @@ const SENSORS_CONFIG = {
 interface BoardProps {
   columns: ColumnType[];
   initialLeads: Lead[];
+  onLeadsChange?: (leads: Lead[]) => void;
 }
 
-export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
+export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: BoardProps) {
   const router = useRouter();
   const [columns, setColumns] = useState<ColumnType[]>(initialColumns);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
@@ -200,6 +201,11 @@ export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
         
         // Set ignore flag BEFORE calling server action
         ignoreExternalUpdatesRef.current = true;
+        
+        // Notify parent about optimistic change
+        if (onLeadsChange) {
+            onLeadsChange(newOrderedLeads);
+        }
         
         updateLeadStatus(movedLead.id, movedLead.columnId!, newPosition)
              .catch(err => {
