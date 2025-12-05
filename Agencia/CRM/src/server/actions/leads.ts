@@ -159,8 +159,13 @@ export async function updateColumnOrder(orderedIds: string[]) {
         revalidatePath('/dashboard/crm');
         console.log(`[updateColumnOrder] Success - Revalidated path`);
         
-        // Optional: Return the new order for verification
-        return { success: true };
+        // Fetch and return the verified new order
+        const updatedColumns = await db.query.columns.findMany({
+            where: eq(columns.organizationId, orgId),
+            orderBy: [asc(columns.order)],
+        });
+
+        return { success: true, columns: updatedColumns };
     } catch (error) {
         console.error("[updateColumnOrder] Error:", error);
         throw error;

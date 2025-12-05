@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { useRouter } from "next/navigation";
 import {
   DndContext,
   DragOverlay,
@@ -44,6 +45,7 @@ interface BoardProps {
 }
 
 export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
+  const router = useRouter();
   const [columns, setColumns] = useState<ColumnType[]>(initialColumns);
   const [leads, setLeads] = useState<Lead[]>(initialLeads);
   
@@ -163,8 +165,14 @@ export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
           
           // Call server action and handle potential errors
           updateColumnOrder(newOrder.map(c => c.id))
-            .then(() => {
+            .then((response) => {
                 console.log("[Board] Column order saved successfully");
+                if (response.columns) {
+                    // Authoritatively update local state with server-verified order
+                    setColumns(response.columns);
+                    // Force router refresh to clear Next.js client router cache
+                    router.refresh();
+                }
             })
             .catch(err => {
                 console.error("Failed to update column order:", err);
