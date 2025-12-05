@@ -53,12 +53,22 @@ export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
   // Add Column State
   const [isCreateColumnOpen, setIsCreateColumnOpen] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
+  
+  // Ref to track local updates and prevent race conditions from server revalidation
+  const ignoreExternalUpdatesRef = useRef(false);
 
   useEffect(() => {
+      if (ignoreExternalUpdatesRef.current) {
+          const timer = setTimeout(() => {
+              ignoreExternalUpdatesRef.current = false;
+          }, 2000); // Ignore server updates for 2s after a local move
+          return () => clearTimeout(timer);
+      }
       setColumns(initialColumns);
   }, [initialColumns]);
 
   useEffect(() => {
+      if (ignoreExternalUpdatesRef.current) return;
       setLeads(initialLeads);
   }, [initialLeads]);
 
@@ -144,6 +154,8 @@ export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
           const newIndex = columns.findIndex((col) => col.id === overId);
           const newOrder = arrayMove(columns, oldIndex, newIndex);
           
+          // Set ignore flag BEFORE calling server action to prevent race condition
+          ignoreExternalUpdatesRef.current = true;
           updateColumnOrder(newOrder.map(c => c.id)); 
           return newOrder;
         });
@@ -164,6 +176,8 @@ export function Board({ columns: initialColumns, initialLeads }: BoardProps) {
         const columnLeads = newOrderedLeads.filter(l => l.columnId === movedLead.columnId);
         const newPosition = columnLeads.findIndex(l => l.id === movedLead.id);
         
+        // Set ignore flag BEFORE calling server action
+        ignoreExternalUpdatesRef.current = true;
         updateLeadStatus(movedLead.id, movedLead.columnId!, newPosition);
           
         return newOrderedLeads;
