@@ -19,6 +19,9 @@ export default async function CRMPage() {
         companyName={settings?.companyName} 
         initialViewMode={settings?.viewMode || 'kanban'}
       />
+      <div className="text-xs text-gray-300 text-center mt-2">
+        CRM Global View - v2.0 (Updated)
+      </div>
     </div>
   );
 }
