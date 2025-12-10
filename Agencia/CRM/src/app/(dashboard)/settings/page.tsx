@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { stackServerApp } from "@/stack";
 
 export default async function SettingsPage() {
+  const user = await stackServerApp.getUser();
   // In Single Tenant Mode, everyone uses the shared ID
   const orgId = "bilder_agency_shared";
   
