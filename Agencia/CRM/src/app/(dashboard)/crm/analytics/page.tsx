@@ -25,10 +25,10 @@ export default async function AnalyticsPage() {
   });
 
   const wonLeads = fechadoColumn 
-    ? leads.filter((l: Lead) => l.columnId === fechadoColumn.id)
+    ? leads.filter((l: any) => l.columnId === fechadoColumn.id)
     : [];
     
-  const totalRevenue = wonLeads.reduce((sum: number, lead: Lead) => {
+  const totalRevenue = wonLeads.reduce((sum: number, lead: any) => {
     return sum + parseValue(lead.value);
   }, 0);
 
@@ -40,7 +40,7 @@ export default async function AnalyticsPage() {
   }
 
   const leadsByColumn: ColumnStat[] = columns.map((col: Column) => {
-    const count = leads.filter((l: Lead) => l.columnId === col.id).length;
+    const count = leads.filter((l: any) => l.columnId === col.id).length;
     return {
       id: col.id,
       name: col.title,
