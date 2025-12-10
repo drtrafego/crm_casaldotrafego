@@ -19,7 +19,7 @@ export default async function DashboardLayout({
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <CrmSidebar />
       <main className="ml-16 p-6 md:p-8 pt-6 min-h-[calc(100vh-4rem)]">
-         <div className="mx-auto max-w-[1600px]">
+         <div className="w-full h-full">
             {children}
          </div>
       </main>
