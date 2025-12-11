@@ -5,8 +5,17 @@ import { Separator } from "@/components/ui/separator";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { stackServerApp } from "@/stack";
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
-  const user = await stackServerApp.getUser();
+  let user;
+  try {
+    user = await stackServerApp.getUser();
+  } catch (error) {
+    console.error("Error fetching user in SettingsPage:", error);
+    user = null;
+  }
+  
   // In Single Tenant Mode, everyone uses the shared ID
   const orgId = "bilder_agency_shared";
   
