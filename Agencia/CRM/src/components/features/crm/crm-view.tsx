@@ -12,10 +12,19 @@ import { NewLeadDialog } from "@/components/features/kanban/new-lead-dialog";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Users, TrendingUp, AlertCircle, CheckCircle2, LayoutGrid, List, Wallet, Search, Settings } from "lucide-react";
+import { Users, TrendingUp, AlertCircle, CheckCircle2, LayoutGrid, List, Wallet, Search, Settings, LogOut, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-import { UserButton } from "@stackframe/stack";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
 import { CompanyOnboarding } from "./company-onboarding";
 
 import { updateViewMode } from "@/server/actions/settings";
@@ -25,9 +34,10 @@ interface CrmViewProps {
   columns: DbColumn[];
   companyName?: string | null;
   initialViewMode?: string | null;
+  user?: any;
 }
 
-export function CrmView({ initialLeads, columns, companyName, initialViewMode }: CrmViewProps) {
+export function CrmView({ initialLeads, columns, companyName, initialViewMode, user }: CrmViewProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
@@ -225,20 +235,38 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode }:
               </Button>
           </div>
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
-          
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-            onClick={() => router.push("/settings")}
-            title="Configurações do CRM"
-          >
-            <Settings className="h-4 w-4" />
-          </Button>
 
-          {stackEnabled && (
-            <div className="hidden sm:block relative z-[9999] isolate">
-              <UserButton />
+          {stackEnabled && user && (
+            <div className="hidden sm:block">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.profileImageUrl || ""} alt={user.displayName || "User"} />
+                      <AvatarFallback>{user.displayName?.charAt(0) || "U"}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56 bg-white dark:bg-slate-950 z-[9999]" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.primaryEmail}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => router.push("/settings")}>
+                    <Settings className="mr-2 h-4 w-4" />
+                    <span>Configurações</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => window.location.href = '/handler/sign-out'}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           )}
           {mounted && (

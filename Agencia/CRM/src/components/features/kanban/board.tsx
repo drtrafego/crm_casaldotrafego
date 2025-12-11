@@ -56,9 +56,14 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
   // Add Column State
   const [isCreateColumnOpen, setIsCreateColumnOpen] = useState(false);
   const [newColumnName, setNewColumnName] = useState("");
+  const [mounted, setMounted] = useState(false);
   
   // Ref to track local updates and prevent race conditions from server revalidation
   const ignoreExternalUpdatesRef = useRef(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
       if (ignoreExternalUpdatesRef.current) {
@@ -284,7 +289,7 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
           </div>
       </div>
 
-      {createPortal(
+      {mounted && createPortal(
         <DragOverlay>
           {activeColumn && (
              <div className="opacity-80 rotate-2 cursor-grabbing">
