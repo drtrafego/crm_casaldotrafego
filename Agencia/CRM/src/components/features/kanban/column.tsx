@@ -44,17 +44,28 @@ export function Column({ column, leads }: ColumnProps) {
 
   // Editing State
   const [isEditing, setIsEditing] = useState(false);
+  const [optimisticTitle, setOptimisticTitle] = useState(column.title);
   const [editTitle, setEditTitle] = useState(column.title);
   const isDefault = column.title === "Novos Leads";
   const [isDeleting, setIsDeleting] = useState(false);
+
+  // Sync with prop changes
+  useEffect(() => {
+    setOptimisticTitle(column.title);
+    setEditTitle(column.title);
+  }, [column.title]);
 
   async function handleSave() {
       if (!editTitle.trim() || editTitle === column.title) {
           setIsEditing(false);
           return;
       }
-      await updateColumn(column.id, editTitle);
+      
+      // Optimistic update
+      setOptimisticTitle(editTitle);
       setIsEditing(false);
+      
+      await updateColumn(column.id, editTitle);
   }
 
   async function handleDelete() {
@@ -103,6 +114,7 @@ export function Column({ column, leads }: ColumnProps) {
                         className="h-8 text-sm"
                         autoFocus
                         onKeyDown={(e) => {
+                            if (e.key === ' ') e.stopPropagation();
                             if (e.key === 'Enter') handleSave();
                             if (e.key === 'Escape') setIsEditing(false);
                         }}
@@ -118,7 +130,7 @@ export function Column({ column, leads }: ColumnProps) {
                 <>
                     <h3 className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-sm">
                          <GripVertical className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {column.title}
+                        {optimisticTitle}
                         <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-xs font-medium">
                             {leads.length}
                         </span>
