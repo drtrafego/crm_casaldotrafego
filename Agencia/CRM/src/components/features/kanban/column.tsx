@@ -2,7 +2,7 @@
 
 import { SortableContext, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { LeadCard } from "./lead-card";
 import { cn } from "@/lib/utils";
 import { Column as ColumnType, Lead } from "@/server/db/schema";
