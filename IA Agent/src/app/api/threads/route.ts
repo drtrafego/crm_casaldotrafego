@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
-import { threads } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 
 /**
  * GET /api/threads - Listar todas as threads
@@ -16,7 +14,7 @@ export async function GET() {
         const formattedThreads = allThreads.map(thread => ({
             id: thread.id,
             contactName: thread.contactName,
-            contactPhone: thread.contactPhone,
+            contactPhone: thread.externalId,
             lastMessage: null, // TODO: Buscar última mensagem
             status: thread.status || 'pending',
             messageCount: 0, // TODO: Contar mensagens
