@@ -7,7 +7,7 @@ import { eq } from 'drizzle-orm';
  * GET /api/agents/[agentId] - Buscar agente específico
  */
 export async function GET(
-    request: Request,
+    _request: Request,
     { params }: { params: Promise<{ agentId: string }> }
 ) {
     try {
@@ -74,7 +74,7 @@ export async function PATCH(
  * DELETE /api/agents/[agentId] - Excluir agente
  */
 export async function DELETE(
-    request: Request,
+    _request: Request,
     { params }: { params: Promise<{ agentId: string }> }
 ) {
     try {
