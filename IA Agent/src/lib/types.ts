@@ -4,12 +4,10 @@
  * ─────────────────────────────────────────────────────────────────────────────
  */
 
-import type {
-    Agent,
+Agent,
     KnowledgeBaseItem,
     Thread,
     Message,
-    Integration,
     User,
 } from '@/db/schema';
 

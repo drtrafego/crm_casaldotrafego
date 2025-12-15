@@ -1,12 +1,10 @@
 import { Header, PageWrapper, PageSection } from '@/components/layout';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui';
+import { Card, CardContent } from '@/components/ui';
 import {
     MessageSquare,
     Users,
     Calendar,
     Clock,
-    TrendingUp,
-    TrendingDown,
     ArrowUp,
     ArrowDown,
 } from 'lucide-react';
@@ -85,21 +83,21 @@ export default function AnalyticsPage() {
                                     <div className="flex items-center justify-between">
                                         <div
                                             className={`flex h-10 w-10 items-center justify-center rounded-xl ${stat.changeType === 'positive'
-                                                    ? 'bg-blue-100'
-                                                    : 'bg-red-100'
+                                                ? 'bg-blue-100'
+                                                : 'bg-red-100'
                                                 }`}
                                         >
                                             <stat.icon
                                                 className={`h-5 w-5 ${stat.changeType === 'positive'
-                                                        ? 'text-blue-600'
-                                                        : 'text-red-600'
+                                                    ? 'text-blue-600'
+                                                    : 'text-red-600'
                                                     }`}
                                             />
                                         </div>
                                         <span
                                             className={`flex items-center gap-0.5 text-sm font-medium ${stat.changeType === 'positive'
-                                                    ? 'text-emerald-600'
-                                                    : 'text-red-600'
+                                                ? 'text-emerald-600'
+                                                : 'text-red-600'
                                                 }`}
                                         >
                                             {stat.changeType === 'positive' ? (

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Header, PageWrapper, PageSection } from '@/components/layout';
+import { Header, PageWrapper } from '@/components/layout';
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Label, Textarea, Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui';
 import { Save, ArrowLeft, Bot, Loader2 } from 'lucide-react';
 import Link from 'next/link';
