@@ -76,7 +76,7 @@ export function Sidebar() {
                     <Sparkles className="h-5 w-5 text-white" />
                 </div>
                 <div>
-                    <h1 className="text-sm font-semibold text-slate-900">CRM Agent</h1>
+                    <h1 className="text-sm font-semibold text-slate-900">IA Agent</h1>
                     <p className="text-xs text-slate-500">Casal do Tráfego</p>
                 </div>
             </div>

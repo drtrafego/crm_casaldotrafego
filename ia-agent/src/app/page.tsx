@@ -17,7 +17,7 @@ export default function HomePage() {
                         <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-violet-500">
                             <Sparkles className="h-5 w-5 text-white" />
                         </div>
-                        <span className="text-lg font-semibold text-slate-900">CRM Agent</span>
+                        <span className="text-lg font-semibold text-slate-900">IA Agent</span>
                     </div>
 
                     <nav className="hidden items-center gap-8 md:flex">

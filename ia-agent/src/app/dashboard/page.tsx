@@ -86,7 +86,7 @@ export default function DashboardPage() {
         <>
             <Header
                 title="Dashboard"
-                description="Visão geral do seu CRM"
+                description="Visão geral do seu Agente"
             />
 
             <PageWrapper>

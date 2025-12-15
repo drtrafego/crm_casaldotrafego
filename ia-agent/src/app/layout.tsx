@@ -16,11 +16,11 @@ const inter = Inter({
 
 export const metadata: Metadata = {
     title: {
-        template: '%s | CRM Casal do Tráfego',
-        default: 'CRM Casal do Tráfego',
+        template: '%s | IA Agent',
+        default: 'IA Agent',
     },
     description: 'Plataforma de automação de atendimento via WhatsApp com agentes de IA configuráveis.',
-    keywords: ['CRM', 'WhatsApp', 'Automação', 'IA', 'Agentes', 'Atendimento'],
+    keywords: ['WhatsApp', 'Automação', 'IA', 'Agentes', 'Atendimento'],
     authors: [{ name: 'Casal do Tráfego' }],
     robots: {
         index: false,

@@ -1,4 +1,4 @@
-# CRM Casal do Tráfego
+# IA Agent
 
 Plataforma de automação de atendimento via WhatsApp com agentes de IA configuráveis.
 
