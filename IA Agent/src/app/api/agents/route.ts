@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { db } from '@/lib/db';
 import { agents } from '@/db/schema';
-import { eq } from 'drizzle-orm';
 
 /**
  * GET /api/agents - Listar todos os agentes
