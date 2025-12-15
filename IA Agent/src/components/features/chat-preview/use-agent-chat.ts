@@ -169,7 +169,7 @@ export function useAgentChat(options: UseAgentChatOptions): UseAgentChatReturn {
                 // Encontra a última mensagem do assistente manualmente para compatibilidade
                 let lastAssistantIndex = -1;
                 for (let i = prev.length - 1; i >= 0; i--) {
-                    if (prev[i].role === 'assistant') {
+                    if (prev[i]?.role === 'assistant') {
                         lastAssistantIndex = i;
                         break;
                     }
