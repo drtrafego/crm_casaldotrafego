@@ -56,26 +56,26 @@ export function Column({ column, leads }: ColumnProps) {
   }, [column.title]);
 
   async function handleSave() {
-      if (!editTitle.trim() || editTitle === column.title) {
-          setIsEditing(false);
-          return;
-      }
-      
-      // Optimistic update
-      setOptimisticTitle(editTitle);
+    if (!editTitle.trim() || editTitle === column.title) {
       setIsEditing(false);
-      
-      await updateColumn(column.id, editTitle);
+      return;
+    }
+
+    // Optimistic update
+    setOptimisticTitle(editTitle);
+    setIsEditing(false);
+
+    await updateColumn(column.id, editTitle);
   }
 
   async function handleDelete() {
-      if (isDefault) return;
-      setIsDeleting(true);
-      try {
-        await deleteColumn(column.id);
-      } catch (error) {
-        setIsDeleting(false);
-      }
+    if (isDefault) return;
+    setIsDeleting(true);
+    try {
+      await deleteColumn(column.id);
+    } catch (error) {
+      setIsDeleting(false);
+    }
   }
 
   if (isDragging) {
@@ -89,90 +89,90 @@ export function Column({ column, leads }: ColumnProps) {
   }
 
   return (
-    <div 
-        ref={setNodeRef} 
-        style={style} 
-        className={cn(
-            "w-[300px] min-w-[300px] flex flex-col bg-slate-100/80 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-700/50",
-            isDeleting && "opacity-50 pointer-events-none"
-        )}
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        "w-[300px] min-w-[300px] max-h-full flex flex-col bg-slate-100/80 dark:bg-slate-800/50 rounded-xl border border-slate-200/60 dark:border-slate-700/50",
+        isDeleting && "opacity-50 pointer-events-none"
+      )}
     >
       {/* Header */}
       <div
         {...attributes}
         {...listeners}
         className={cn(
-            "p-3 pb-2 flex items-center justify-between group cursor-grab active:cursor-grabbing touch-none",
-            isEditing && "cursor-default"
+          "p-3 pb-2 flex items-center justify-between group cursor-grab active:cursor-grabbing touch-none",
+          isEditing && "cursor-default"
         )}
       >
         {isEditing ? (
-                 <div className="flex items-center gap-2 w-full">
-                    <Input 
-                        value={editTitle} 
-                        onChange={(e) => setEditTitle(e.target.value)}
-                        className="h-8 text-sm"
-                        autoFocus
-                        onKeyDown={(e) => {
-                            if (e.key === ' ') e.stopPropagation();
-                            if (e.key === 'Enter') handleSave();
-                            if (e.key === 'Escape') setIsEditing(false);
-                        }}
-                    />
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600" onClick={handleSave}>
-                        <Check className="h-4 w-4" />
-                    </Button>
-                    <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600" onClick={() => setIsEditing(false)}>
-                        <X className="h-4 w-4" />
-                    </Button>
-                 </div>
-            ) : (
-                <>
-                    <h3 className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-sm">
-                         <GripVertical className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
-                        {optimisticTitle}
-                        <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-xs font-medium">
-                            {leads.length}
-                        </span>
-                    </h3>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="h-6 w-6 transition-opacity"
-                                onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on menu click
-                            >
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setIsEditing(true)}>
-                                <Pencil className="mr-2 h-4 w-4" />
-                                Renomear
-                            </DropdownMenuItem>
-                            {!isDefault && (
-                                <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
-                                    <Trash2 className="mr-2 h-4 w-4" />
-                                    Excluir
-                                </DropdownMenuItem>
-                            )}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </>
-            )}
+          <div className="flex items-center gap-2 w-full">
+            <Input
+              value={editTitle}
+              onChange={(e) => setEditTitle(e.target.value)}
+              className="h-8 text-sm"
+              autoFocus
+              onKeyDown={(e) => {
+                if (e.key === ' ') e.stopPropagation();
+                if (e.key === 'Enter') handleSave();
+                if (e.key === 'Escape') setIsEditing(false);
+              }}
+            />
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-green-600" onClick={handleSave}>
+              <Check className="h-4 w-4" />
+            </Button>
+            <Button size="icon" variant="ghost" className="h-8 w-8 text-red-600" onClick={() => setIsEditing(false)}>
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        ) : (
+          <>
+            <h3 className="font-semibold text-slate-700 dark:text-slate-200 flex items-center gap-2 text-sm">
+              <GripVertical className="h-4 w-4 text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+              {optimisticTitle}
+              <span className="bg-slate-200 text-slate-600 px-2 py-0.5 rounded-full text-xs font-medium">
+                {leads.length}
+              </span>
+            </h3>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-6 w-6 transition-opacity"
+                  onPointerDown={(e) => e.stopPropagation()} // Prevent drag start on menu click
+                >
+                  <MoreHorizontal className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setIsEditing(true)}>
+                  <Pencil className="mr-2 h-4 w-4" />
+                  Renomear
+                </DropdownMenuItem>
+                {!isDefault && (
+                  <DropdownMenuItem className="text-red-600" onClick={handleDelete}>
+                    <Trash2 className="mr-2 h-4 w-4" />
+                    Excluir
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </>
+        )}
       </div>
 
       {/* Cards Area */}
-      <div className="flex-1 p-2">
+      <div className="flex-1 p-2 overflow-y-auto custom-scrollbar">
         <div className="pr-3 min-h-[50px]">
-            <SortableContext items={leadsIds} strategy={verticalListSortingStrategy}>
-                <div className="flex flex-col gap-3 pb-4">
-                    {leads.map((lead) => (
-                        <LeadCard key={lead.id} lead={lead} />
-                    ))}
-                </div>
-            </SortableContext>
+          <SortableContext items={leadsIds} strategy={verticalListSortingStrategy}>
+            <div className="flex flex-col gap-3 pb-4">
+              {leads.map((lead) => (
+                <LeadCard key={lead.id} lead={lead} />
+              ))}
+            </div>
+          </SortableContext>
         </div>
       </div>
     </div>

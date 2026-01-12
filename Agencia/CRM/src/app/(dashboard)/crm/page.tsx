@@ -21,11 +21,11 @@ export default async function CRMPage() {
   } : null;
 
   return (
-    <div className="min-h-[calc(100vh-100px)] pb-8">
-      <CrmView 
-        initialLeads={leads as any[]}  
-        columns={columns} 
-        companyName={settings?.companyName} 
+    <div className="h-[calc(100vh-100px)] flex flex-col">
+      <CrmView
+        initialLeads={leads as any[]}
+        columns={columns}
+        companyName={settings?.companyName}
         initialViewMode={settings?.viewMode || 'kanban'}
         user={user}
       />

@@ -41,7 +41,7 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
   const searchParams = useSearchParams();
   const router = useRouter();
   const pathname = usePathname();
-  
+
   const initialView = (searchParams.get("view") as "board" | "list") || (initialViewMode as "board" | "list") || "board";
   const [view, setView] = useState<"board" | "list">(initialView);
 
@@ -52,11 +52,11 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
   }, [searchParams, view]);
 
   const handleViewChange = (newView: "board" | "list") => {
-      setView(newView);
-      const params = new URLSearchParams(searchParams);
-      params.set("view", newView);
-      router.replace(`${pathname}?${params.toString()}`);
-      updateViewMode(newView);
+    setView(newView);
+    const params = new URLSearchParams(searchParams);
+    params.set("view", newView);
+    router.replace(`${pathname}?${params.toString()}`);
+    updateViewMode(newView);
   };
 
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -69,7 +69,7 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
 
   // Sync with server props if they change (revalidation)
   useEffect(() => {
-      setOptimisticLeads(initialLeads);
+    setOptimisticLeads(initialLeads);
   }, [initialLeads]);
 
   const [mounted, setMounted] = useState(false);
@@ -84,13 +84,13 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
 
     // 1. Filter by Search Query
     if (searchQuery.trim()) {
-        const query = searchQuery.toLowerCase();
-        leads = leads.filter(l => 
-            l.name.toLowerCase().includes(query) || 
-            l.email?.toLowerCase().includes(query) || 
-            l.company?.toLowerCase().includes(query) ||
-            l.whatsapp?.includes(query)
-        );
+      const query = searchQuery.toLowerCase();
+      leads = leads.filter(l =>
+        l.name.toLowerCase().includes(query) ||
+        l.email?.toLowerCase().includes(query) ||
+        l.company?.toLowerCase().includes(query) ||
+        l.whatsapp?.includes(query)
+      );
     }
 
     // 2. Filter by Date Range
@@ -106,48 +106,48 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
   }, [optimisticLeads, dateRange, searchQuery]);
 
   const handleLeadsChange = (newFilteredLeads: Lead[]) => {
-      setOptimisticLeads(prev => {
-          // Create a map of the updated leads for O(1) lookup
-          const updatedMap = new Map(newFilteredLeads.map(l => [l.id, l]));
-          
-          // Merge: if lead exists in updated list, use it; otherwise keep existing
-          return prev.map(l => updatedMap.get(l.id) || l);
-      });
+    setOptimisticLeads(prev => {
+      // Create a map of the updated leads for O(1) lookup
+      const updatedMap = new Map(newFilteredLeads.map(l => [l.id, l]));
+
+      // Merge: if lead exists in updated list, use it; otherwise keep existing
+      return prev.map(l => updatedMap.get(l.id) || l);
+    });
   };
 
   // Stats Calculation
   const totalLeads = filteredLeads.length;
-  
+
   const newLeadsCount = filteredLeads.filter(l => {
-     const col = columns.find(c => c.id === l.columnId);
-     return col?.title.toLowerCase().includes("novos") || col?.order === 0;
+    const col = columns.find(c => c.id === l.columnId);
+    return col?.title.toLowerCase().includes("novos") || col?.order === 0;
   }).length;
-  
+
   const wonLeads = filteredLeads.filter(l => {
-      const col = columns.find(c => c.id === l.columnId);
-      if (!col) return false;
-      
-      const title = col.title.toLowerCase().trim();
-      // Check for keywords - STRICTLY "Fechado", "Won", "Ganho" for Revenue
-      if (title.includes("ganho") || title.includes("won") || title.includes("fechado")) return true;
-      
-      // Fallback: Check order. Usually "Fechado" is one of the last columns.
-      // If it's the 2nd to last or last column and NOT "Perdido", maybe it's won?
-      // Standard order: Novos, Contact, Nao Retornou, Proposta, Fechado, Perdido. (6 columns)
-      // Fechado is index 4.
-      if (col.order === 4 && !title.includes("perdido") && !title.includes("lost")) return true;
-      
-      return false;
-   });
-   
-   const parseValue = (val: string | null | number | undefined) => {
+    const col = columns.find(c => c.id === l.columnId);
+    if (!col) return false;
+
+    const title = col.title.toLowerCase().trim();
+    // Check for keywords - STRICTLY "Fechado", "Won", "Ganho" for Revenue
+    if (title.includes("ganho") || title.includes("won") || title.includes("fechado")) return true;
+
+    // Fallback: Check order. Usually "Fechado" is one of the last columns.
+    // If it's the 2nd to last or last column and NOT "Perdido", maybe it's won?
+    // Standard order: Novos, Contact, Nao Retornou, Proposta, Fechado, Perdido. (6 columns)
+    // Fechado is index 4.
+    if (col.order === 4 && !title.includes("perdido") && !title.includes("lost")) return true;
+
+    return false;
+  });
+
+  const parseValue = (val: string | null | number | undefined) => {
     if (!val) return 0;
     if (typeof val === 'number') return val;
-    
+
     // If it matches standard float format (digits, optional dot, digits) AND no comma
     // This handles "5000.00" (DB format) correctly
     if (/^-?\d+(\.\d+)?$/.test(val)) {
-        return parseFloat(val);
+      return parseFloat(val);
     }
 
     // Otherwise assume BR format (comma decimal)
@@ -161,38 +161,38 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
   const wonValue = wonLeads.reduce((sum, lead) => sum + parseValue(lead.value), 0);
 
   const lostLeadsCount = filteredLeads.filter(l => {
-      const col = columns.find(c => c.id === l.columnId);
-      if (!col) return false;
-      const title = col.title.toLowerCase().trim();
-      return title.includes("perdido") || title.includes("lost");
+    const col = columns.find(c => c.id === l.columnId);
+    if (!col) return false;
+    const title = col.title.toLowerCase().trim();
+    return title.includes("perdido") || title.includes("lost");
   }).length;
 
   const activeLeads = filteredLeads.filter(l => {
+    const col = columns.find(c => c.id === l.columnId);
+    if (!col) return false;
+    const title = col.title.toLowerCase().trim();
+
+    const isWon = title.includes("ganho") || title.includes("won") || title.includes("fechado") || (col.order === 4 && !title.includes("perdido") && !title.includes("lost"));
+    const isLost = title.includes("perdido") || title.includes("lost");
+    return !isWon && !isLost;
+  });
+
+  // Custom Pipeline Value: Sum of "Proposta Enviada" ONLY as requested by user
+  // "somátória ainda não está na coluna Proposta Enviada" implies specific mapping.
+  const potentialValue = filteredLeads
+    .filter(l => {
       const col = columns.find(c => c.id === l.columnId);
       if (!col) return false;
       const title = col.title.toLowerCase().trim();
-      
-      const isWon = title.includes("ganho") || title.includes("won") || title.includes("fechado") || (col.order === 4 && !title.includes("perdido") && !title.includes("lost"));
-      const isLost = title.includes("perdido") || title.includes("lost");
-      return !isWon && !isLost;
-   });
-   
-   // Custom Pipeline Value: Sum of "Proposta Enviada" ONLY as requested by user
-   // "somátória ainda não está na coluna Proposta Enviada" implies specific mapping.
-   const potentialValue = filteredLeads
-      .filter(l => {
-         const col = columns.find(c => c.id === l.columnId);
-         if (!col) return false;
-         const title = col.title.toLowerCase().trim();
-         // Match ONLY "proposta" or "enviada" for Potential Pipeline
-         return title.includes("proposta") || title.includes("enviada");
-      })
-      .reduce((sum, lead) => sum + parseValue(lead.value), 0);
+      // Match ONLY "proposta" or "enviada" for Potential Pipeline
+      return title.includes("proposta") || title.includes("enviada");
+    })
+    .reduce((sum, lead) => sum + parseValue(lead.value), 0);
 
   const formatCurrency = (val: number) => new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(val);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 h-full">
       <CompanyOnboarding hasCompanyName={!!companyName} />
       {/* Header & Controls */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-[100]">
@@ -201,38 +201,38 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
           <p className="text-sm text-slate-500 dark:text-slate-400">Gerencie seus leads e oportunidades</p>
         </div>
         <div className="flex items-center gap-2">
-            <div className="relative w-full sm:w-64 hidden sm:block">
-                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input 
-                    placeholder="Pesquisar..." 
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-8 bg-white dark:bg-slate-900 h-9"
-                />
-            </div>
-            <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
-              <Button 
-                variant="ghost"
-                size="sm" 
-                onClick={() => handleViewChange("board")}
-                className={cn(
-                    "h-8 px-2", 
-                    view === "board" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
-                )}
-              >
-                  <LayoutGrid className="h-4 w-4 mr-1" /> Kanban
-              </Button>
-              <Button 
-                variant="ghost"
-                size="sm" 
-                onClick={() => handleViewChange("list")}
-                className={cn(
-                    "h-8 px-2", 
-                    view === "list" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
-                )}
-              >
-                  <List className="h-4 w-4 mr-1" /> Lista
-              </Button>
+          <div className="relative w-full sm:w-64 hidden sm:block">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Pesquisar..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-8 bg-white dark:bg-slate-900 h-9"
+            />
+          </div>
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-1 rounded-lg border border-slate-200 dark:border-slate-700">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleViewChange("board")}
+              className={cn(
+                "h-8 px-2",
+                view === "board" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
+              )}
+            >
+              <LayoutGrid className="h-4 w-4 mr-1" /> Kanban
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => handleViewChange("list")}
+              className={cn(
+                "h-8 px-2",
+                view === "list" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
+              )}
+            >
+              <List className="h-4 w-4 mr-1" /> Lista
+            </Button>
           </div>
           <div className="h-6 w-px bg-slate-200 dark:bg-slate-700 mx-1" />
 
@@ -280,63 +280,63 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard 
-          title="Total de Leads" 
-          value={totalLeads} 
-          icon={Users} 
+        <StatsCard
+          title="Total de Leads"
+          value={totalLeads}
+          icon={Users}
           description="No período selecionado"
         />
-        <StatsCard 
-          title="Novos Leads" 
-          value={newLeadsCount} 
-          icon={AlertCircle} 
+        <StatsCard
+          title="Novos Leads"
+          value={newLeadsCount}
+          icon={AlertCircle}
           description="Aguardando contato"
           iconClassName="text-blue-600 dark:text-blue-400"
         />
-        <StatsCard 
-          title="Potencial (Pipeline)" 
-          value={formatCurrency(potentialValue)} 
-          icon={TrendingUp} 
+        <StatsCard
+          title="Potencial (Pipeline)"
+          value={formatCurrency(potentialValue)}
+          icon={TrendingUp}
           description="Valor em negociação"
           iconClassName="text-amber-600 dark:text-amber-400"
         />
-        <StatsCard 
-          title="Ganhos (Receita)" 
-          value={formatCurrency(wonValue)} 
-          icon={Wallet} 
+        <StatsCard
+          title="Ganhos (Receita)"
+          value={formatCurrency(wonValue)}
+          icon={Wallet}
           description={`${wonLeads.length} negócios fechados`}
           iconClassName="text-emerald-600 dark:text-emerald-400"
         />
       </div>
 
       {/* Content Area */}
-      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
-         {view === "board" ? (
-             <Board initialLeads={filteredLeads} columns={columns} onLeadsChange={handleLeadsChange} />
-         ) : (
-             <div className="p-4">
-                <LeadsList leads={filteredLeads} columns={columns} />
-             </div>
-         )}
+      <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 flex-1 min-h-0 overflow-hidden">
+        {view === "board" ? (
+          <Board initialLeads={filteredLeads} columns={columns} onLeadsChange={handleLeadsChange} />
+        ) : (
+          <div className="p-4 h-full overflow-y-auto custom-scrollbar">
+            <LeadsList leads={filteredLeads} columns={columns} />
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function StatsCard({ 
-    title, 
-    value, 
-    icon: Icon, 
-    description, 
-    className,
-    iconClassName
-}: { 
-    title: string; 
-    value: string | number; 
-    icon: any; 
-    description?: string; 
-    className?: string;
-    iconClassName?: string;
+function StatsCard({
+  title,
+  value,
+  icon: Icon,
+  description,
+  className,
+  iconClassName
+}: {
+  title: string;
+  value: string | number;
+  icon: any;
+  description?: string;
+  className?: string;
+  iconClassName?: string;
 }) {
   return (
     <Card className={cn("bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800", className)}>
@@ -357,4 +357,4 @@ function StatsCard({
     </Card>
   );
 }
-  const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID && !!process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
+const stackEnabled = !!process.env.NEXT_PUBLIC_STACK_PROJECT_ID && !!process.env.NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY;
