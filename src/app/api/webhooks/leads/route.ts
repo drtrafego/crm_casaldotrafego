@@ -11,10 +11,10 @@ export async function POST(request: Request) {
     // Support both phone and whatsapp fields in payload
     const finalWhatsapp = whatsapp || phone;
 
-    // Basic validation
-    if (!name || !email) {
+    // Basic validation - only name is required
+    if (!name) {
       return NextResponse.json(
-        { error: "Name and email are required" },
+        { error: "Name is required" },
         { status: 400 }
       );
     }

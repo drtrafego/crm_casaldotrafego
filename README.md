@@ -18,6 +18,129 @@
 
 ---
 
+## 🖥️ Frontend - Páginas e Funcionalidades
+
+### Página Principal: Dashboard CRM (`/crm`)
+📁 **Arquivo:** `src/app/(dashboard)/crm/page.tsx` → `src/components/features/crm/crm-view.tsx`
+
+| Elemento | Descrição |
+|----------|-----------|
+| **Header** | Título da empresa, barra de pesquisa, toggle Kanban/Lista |
+| **KPI Cards** | 4 cards: Total de Leads, Novos Leads, Potencial (Pipeline), Ganhos (Receita) |
+| **Vista Kanban** | Board drag-and-drop com colunas dinâmicas |
+| **Vista Lista** | Tabela interativa com filtros, ordenação, badges coloridos |
+| **Date Picker** | Filtro por período (Hoje, 7 dias, 30 dias, etc.) |
+
+**Funcionalidades:**
+- Arrastar e soltar leads entre colunas
+- Editar lead ao clicar (modal completo)
+- Botão WhatsApp direto em cada lead
+- Pesquisa global por nome/email/empresa
+
+---
+
+### Página Analytics (`/crm/analytics`)
+📁 **Arquivo:** `src/app/(dashboard)/crm/analytics/page.tsx` → `src/components/features/crm/analytics-dashboard.tsx`
+
+| Gráfico | Descrição |
+|---------|-----------|
+| **Evolução de Vendas** | Área + Linha: Volume de leads vs Receita mensal |
+| **Performance Regional** | Barras horizontais: Leads por estado (extraído do DDD do WhatsApp) |
+| **Leads Diários** | Barras verticais: Volume de leads por dia |
+| **Funil de Vendas** | Barras: Leads por etapa do pipeline |
+| **Insights de Observações** | Cards com métricas das anotações dos leads |
+
+**Filtros disponíveis:**
+- Período (calendário)
+- Origem (Google, Meta, Captação Ativa, Orgânicos)
+- Estado (SP, RJ, MG, etc.)
+
+---
+
+### Página Calendário (`/crm/calendar`)
+📁 **Arquivo:** `src/app/(dashboard)/crm/calendar/page.tsx`
+
+| Elemento | Descrição |
+|----------|-----------|
+| **Grid Mensal** | Calendário visual com leads do dia |
+| **Lista de Follow-ups** | 3 listas: Atrasados (vermelho), Hoje (amarelo), Próximos (azul) |
+| **Navegação** | Setas mês anterior/próximo, picker de data, botão "Hoje" |
+| **Seletor de Período** | Dropdown: Hoje, Ontem, Últimos 7/14/30 dias |
+
+---
+
+### Página Configurações (`/settings`)
+📁 **Arquivo:** `src/app/(dashboard)/settings/page.tsx`
+
+| Configuração | Descrição |
+|--------------|-----------|
+| **Nome da Empresa** | Aparece no header do Dashboard |
+| **Tema** | Toggle: Claro / Escuro / Automático |
+| **URL do Webhook** | Endpoint para integração (copiável) |
+| **Preferência de Vista** | Kanban ou Lista (salva no banco) |
+
+---
+
+## 🌓 Sistema de Temas (Dark/Light Mode)
+
+### Arquitetura
+O tema é gerenciado pela biblioteca **next-themes** com estratégia de classes CSS.
+
+📁 **Arquivos principais:**
+| Arquivo | Função |
+|---------|--------|
+| `src/components/theme-provider.tsx` | Provider que envolve a aplicação |
+| `src/app/layout.tsx` | Onde o ThemeProvider é montado |
+| `src/app/globals.css` | Variáveis CSS para cada tema |
+| `src/app/(dashboard)/settings/page.tsx` | Toggle de tema para o usuário |
+
+### Como Funciona
+```tsx
+// theme-provider.tsx
+import { ThemeProvider } from "next-themes";
+
+export function Providers({ children }) {
+  return (
+    <ThemeProvider attribute="class" defaultTheme="system">
+      {children}
+    </ThemeProvider>
+  );
+}
+```
+
+### Variáveis CSS
+```css
+/* globals.css */
+@layer base {
+  :root {
+    --background: #ffffff;      /* Light mode */
+    --foreground: #171717;
+  }
+  .dark {
+    --background: #0a0a0a;      /* Dark mode */
+    --foreground: #ededed;
+  }
+}
+```
+
+### Padrão de Classes Tailwind
+Todos os componentes usam o padrão `classe-light dark:classe-dark`:
+```tsx
+// Exemplo de componente responsivo ao tema
+<div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
+  <button className="hover:bg-slate-50 dark:hover:bg-slate-800">
+    Clique aqui
+  </button>
+</div>
+```
+
+### Onde Alterar o Tema
+- **No código:** `src/components/theme-provider.tsx` → `defaultTheme`
+- **Na UI:** Página de Settings → Toggle de tema
+- **Forçar tema fixo:** Remova o toggle e defina `forcedTheme="dark"` ou `"light"` no Provider
+
+---
+
 ## ⚡ Guia de Setup Rápido (5 Minutos)
 
 ### 1. Clone e Instale
@@ -161,7 +284,8 @@ INSERT INTO columns (title, "order", organization_id) VALUES
 ```
 
 **Validações:**
-- `name` e `email` são obrigatórios
+- `name` é obrigatório (único campo requerido)
+- `email`, `whatsapp`, `company` são opcionais
 - Lead é inserido automaticamente na coluna "Novos Leads"
 - `whatsapp` ou `phone` são aceitos (whatsapp tem prioridade)
 
