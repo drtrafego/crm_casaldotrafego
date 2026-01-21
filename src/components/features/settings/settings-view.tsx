@@ -10,6 +10,7 @@ import { Switch } from "@/components/ui/switch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { User, Bell, Link as LinkIcon, Copy, Check, LogOut, Settings as SettingsIcon, Webhook } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTheme } from "next-themes";
 
 interface SettingsViewProps {
     user: any;
@@ -19,6 +20,7 @@ interface SettingsViewProps {
 export function SettingsView({ user, orgId }: SettingsViewProps) {
     const [copied, setCopied] = useState(false);
     const [jsonCopied, setJsonCopied] = useState(false);
+    const { setTheme, theme } = useTheme();
 
     const webhookUrl = "https://seu-crm.com/api/webhooks/leads";
 
@@ -216,6 +218,67 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
                                         <AlertCircleIcon />
                                         O campo <code className="bg-slate-100 dark:bg-slate-800 px-1 py-0.5 rounded text-slate-700 dark:text-slate-300">organizationId</code> é obrigatório.
                                     </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </section>
+                    {/* Appearance Section */}
+                    <section id="appearance">
+                        <Card className="border-slate-200 dark:border-slate-800 shadow-sm">
+                            <CardHeader className="bg-slate-50/50 dark:bg-slate-900/50 border-b border-slate-100 dark:border-slate-800 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-slate-100 dark:bg-slate-800 rounded-lg">
+                                        <div className="h-5 w-5 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-full" />
+                                    </div>
+                                    <div>
+                                        <CardTitle>Aparência</CardTitle>
+                                        <CardDescription>Customize o tema do sistema</CardDescription>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="p-6">
+                                <div className="flex items-center justify-between">
+                                    <div className="space-y-1">
+                                        <Label className="text-base font-medium">Tema</Label>
+                                        <p className="text-sm text-slate-500 dark:text-slate-400">
+                                            Selecione sua preferência de visualização.
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-2 p-1 bg-slate-100 dark:bg-slate-800/50 rounded-lg border border-slate-200 dark:border-slate-800">
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setTheme("light")}
+                                            className={cn(
+                                                "h-8 px-3 rounded-md transition-all",
+                                                theme === "light" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
+                                            )}
+                                        >
+                                            <span className="flex items-center gap-2">☀️ Claro</span>
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setTheme("dark")}
+                                            className={cn(
+                                                "h-8 px-3 rounded-md transition-all",
+                                                theme === "dark" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
+                                            )}
+                                        >
+                                            <span className="flex items-center gap-2">🌑 Escuro</span>
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => setTheme("system")}
+                                            className={cn(
+                                                "h-8 px-3 rounded-md transition-all",
+                                                theme === "system" && "bg-white dark:bg-slate-700 shadow-sm text-indigo-600 dark:text-indigo-400"
+                                            )}
+                                        >
+                                            <span className="flex items-center gap-2">💻 Auto</span>
+                                        </Button>
+                                    </div>
                                 </div>
                             </CardContent>
                         </Card>

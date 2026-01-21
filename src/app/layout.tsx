@@ -4,6 +4,7 @@ import { StackProvider } from "@stackframe/stack";
 import { stackServerApp } from "@/stack";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { ThemeProvider } from "@/components/theme-provider";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -34,16 +35,30 @@ export default function RootLayout({
       >
         {stackEnabled ? (
           <StackProvider app={stackServerApp}>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <TooltipProvider>
+                {children}
+                <SpeedInsights />
+              </TooltipProvider>
+            </ThemeProvider>
+          </StackProvider>
+        ) : (
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
             <TooltipProvider>
               {children}
               <SpeedInsights />
             </TooltipProvider>
-          </StackProvider>
-        ) : (
-          <TooltipProvider>
-            {children}
-            <SpeedInsights />
-          </TooltipProvider>
+          </ThemeProvider>
         )}
       </body>
     </html>
