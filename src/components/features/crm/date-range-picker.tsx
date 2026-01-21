@@ -28,17 +28,20 @@ interface DateRangePickerProps {
 }
 
 export function DateRangePickerWithPresets({ date, setDate }: DateRangePickerProps) {
-  const [preset, setPreset] = React.useState<string>("7");
+  const [preset, setPreset] = React.useState<string>("30");
 
   const handlePresetChange = (value: string) => {
     setPreset(value);
     const today = new Date();
-    
+
     if (value === "today") {
       setDate({ from: today, to: today });
     } else if (value === "yesterday") {
       const yesterday = subDays(today, 1);
       setDate({ from: yesterday, to: yesterday });
+    } else if (value === "all_time") {
+      // From 01/01/2026 to Today
+      setDate({ from: new Date(2026, 0, 1), to: today });
     } else {
       const days = parseInt(value);
       setDate({ from: subDays(today, days - 1), to: today });
@@ -58,9 +61,10 @@ export function DateRangePickerWithPresets({ date, setDate }: DateRangePickerPro
           <SelectItem value="14">Últimos 14 dias</SelectItem>
           <SelectItem value="30">Últimos 30 dias</SelectItem>
           <SelectItem value="60">Últimos 60 dias</SelectItem>
+          <SelectItem value="all_time">Todo o período</SelectItem>
         </SelectContent>
       </Select>
-      
+
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -73,19 +77,19 @@ export function DateRangePickerWithPresets({ date, setDate }: DateRangePickerPro
             )}
           >
             <div className="flex items-center gap-2">
-                <CalendarIcon className="h-4 w-4" />
-                {date?.from ? (
+              <CalendarIcon className="h-4 w-4" />
+              {date?.from ? (
                 date.to ? (
-                    <>
+                  <>
                     {format(date.from, "dd/MM/y", { locale: ptBR })} -{" "}
                     {format(date.to, "dd/MM/y", { locale: ptBR })}
-                    </>
+                  </>
                 ) : (
-                    format(date.from, "dd/MM/y", { locale: ptBR })
+                  format(date.from, "dd/MM/y", { locale: ptBR })
                 )
-                ) : (
+              ) : (
                 <span>Selecione uma data</span>
-                )}
+              )}
             </div>
           </Button>
         </PopoverTrigger>
