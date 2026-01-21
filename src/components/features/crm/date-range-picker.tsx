@@ -72,7 +72,9 @@ export function DateRangePickerWithPresets({ date, setDate }: DateRangePickerPro
             variant={"outline"}
             className={cn(
               "w-[260px] justify-start text-left font-normal",
-              "flex h-9 items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-start text-sm text-slate-900 shadow-sm hover:bg-slate-50 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50 data-[placeholder]:text-slate-500 [&>span]:min-w-0 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-50 dark:focus:border-blue-500 dark:focus:ring-blue-500/20 dark:data-[placeholder]:text-slate-400",
+              "flex h-9 items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-start text-sm text-slate-700 shadow-sm transition-all",
+              "hover:bg-slate-50 hover:border-slate-300",
+              "dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100 dark:hover:bg-slate-800 dark:hover:border-slate-700",
               !date && "text-slate-500 dark:text-slate-400"
             )}
           >
