@@ -1,19 +1,28 @@
 import { getLeads } from "@/server/actions/leads";
 import { Lead } from "@/server/db/schema";
-import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isSameDay, addDays, startOfWeek, endOfWeek, endOfDay } from "date-fns";
+import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isSameDay, addDays, startOfWeek, endOfWeek, endOfDay, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Clock } from "lucide-react";
+import { CalendarHeader } from "@/components/features/crm/calendar-header";
 
 export const dynamic = 'force-dynamic';
 
-export default async function CalendarPage() {
-  const leads: any[] = await getLeads();
+interface CalendarPageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}
 
-  const today = new Date();
-  const monthStart = startOfMonth(today);
-  const monthEnd = endOfMonth(today);
+export default async function CalendarPage({ searchParams }: CalendarPageProps) {
+  const leads: any[] = await getLeads();
+  const params = await searchParams;
+
+  // Resolve Date from URL or default to Today
+  const dateParam = typeof params.date === 'string' ? params.date : undefined;
+  const currentViewDate = dateParam ? parseISO(dateParam) : new Date();
+
+  const monthStart = startOfMonth(currentViewDate);
+  const monthEnd = endOfMonth(currentViewDate);
   const calendarStart = startOfWeek(monthStart);
   const calendarEnd = endOfWeek(monthEnd);
 
@@ -23,6 +32,7 @@ export default async function CalendarPage() {
   });
 
   const weekDays = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"];
+  const today = new Date();
 
   // Get leads with follow-ups
   const leadsWithFollowUp = leads.filter((l: any) => l.followUpDate);
@@ -38,11 +48,9 @@ export default async function CalendarPage() {
     <div className="p-6 h-full flex flex-col overflow-y-auto custom-scrollbar gap-8">
       <div className="flex-none">
         <div className="flex items-center justify-between mb-6">
-          <div>
+          <div className="flex items-center gap-4">
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">Calendário</h1>
-            <p className="text-slate-500 dark:text-slate-400">
-              {format(today, "MMMM yyyy", { locale: ptBR }).replace(/^\w/, (c) => c.toUpperCase())}
-            </p>
+            <CalendarHeader currentDate={currentViewDate} />
           </div>
           <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-2">
