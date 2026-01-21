@@ -1,0 +1,9 @@
+
+--- Source Summary ---
+Source: [Google] - Count: 8
+Source: [Organicos] - Count: 1
+Source: [NULL] - Count: 93
+
+--- Candidates for Update ---
+Google Normalization candidates: 0
+Meta Normalization candidates: 0

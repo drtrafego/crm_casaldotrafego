@@ -58,12 +58,14 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
   const [newColumnName, setNewColumnName] = useState("");
   const [mounted, setMounted] = useState(false);
 
-  // Ref to track local updates and prevent race conditions from server revalidation
-  const ignoreExternalUpdatesRef = useRef(false);
-
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Ref to track local updates and prevent race conditions from server revalidation
+  const ignoreExternalUpdatesRef = useRef(false);
+
+
 
   useEffect(() => {
     if (ignoreExternalUpdatesRef.current) {
@@ -256,6 +258,7 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
 
   return (
     <DndContext
+      id="crm-kanban-board"
       sensors={sensors}
       collisionDetection={closestCorners}
       onDragStart={onDragStart}

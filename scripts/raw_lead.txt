@@ -1,0 +1,21 @@
+{
+  "id": "8aa72c29-18bb-4343-8782-c9303f15cf83",
+  "name": "Marcos Victor D Luz Santos ",
+  "company": null,
+  "email": "marcosgoat753@gmail.com",
+  "whatsapp": "5531994772928",
+  "campaign_source": null,
+  "status": "Novo",
+  "column_id": "8fb424d8-6ad0-40a6-a029-48bc244b8431",
+  "position": 0,
+  "organization_id": "5026ab39-9cd0-4dde-ba5a-dcf4f51612d5",
+  "notes": null,
+  "value": null,
+  "created_at": "2026-01-21T19:38:03.849Z",
+  "follow_up_date": null,
+  "follow_up_note": null,
+  "utm_source": "adwords",
+  "utm_medium": "ppc",
+  "utm_campaign": "[drtrafego] [PALAVRAS] [LEADS]",
+  "page_path": "/"
+}

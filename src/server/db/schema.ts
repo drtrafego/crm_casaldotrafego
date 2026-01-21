@@ -27,6 +27,11 @@ export const leads = pgTable("leads", {
   followUpDate: timestamp("follow_up_date"), // When to follow up with this lead
   followUpNote: text("follow_up_note"), // Reason for follow-up
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  // Discovered columns (2026-01-21)
+  utmSource: text("utm_source"),
+  utmMedium: text("utm_medium"),
+  utmCampaign: text("utm_campaign"),
+  pagePath: text("page_path"),
 });
 
 export const settings = pgTable("settings", {

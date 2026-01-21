@@ -21,10 +21,10 @@ interface LeadCardProps {
 }
 
 const CAMPAIGN_SOURCES = [
-  { label: "Google", value: "Google", color: "bg-blue-50 text-blue-700 border-blue-100" },
-  { label: "Meta", value: "Meta", color: "bg-indigo-50 text-indigo-700 border-indigo-100" },
-  { label: "Captação Ativa", value: "Captação Ativa", color: "bg-amber-50 text-amber-700 border-amber-100" },
-  { label: "Organicos", value: "Organicos", color: "bg-emerald-50 text-emerald-700 border-emerald-100" },
+  { label: "Google", value: "Google", color: "bg-red-950/40 text-red-500 border border-red-500/50 hover:bg-red-950/60" },
+  { label: "Meta", value: "Meta", color: "bg-blue-950/40 text-blue-400 border border-blue-500/50 hover:bg-blue-950/60" },
+  { label: "Captação Ativa", value: "Captação Ativa", color: "bg-amber-950/40 text-amber-500 border border-amber-500/50 hover:bg-amber-950/60" },
+  { label: "Organicos", value: "Organicos", color: "bg-emerald-950/40 text-emerald-500 border border-emerald-500/50 hover:bg-emerald-950/60" },
 ];
 
 export function LeadCard({ lead }: LeadCardProps) {
@@ -121,10 +121,11 @@ export function LeadCard({ lead }: LeadCardProps) {
                               key={source.value}
                               value={source.value}
                               onSelect={() => handleSourceSelect(source.value)}
-                              className="text-xs"
+                              className="text-xs p-1"
                             >
-                              <div className={cn("w-2 h-2 rounded-full mr-2", source.color.split(' ')[0].replace('bg-', 'bg-'))} />
-                              {source.label}
+                              <div className={cn("w-full px-2 py-1.5 rounded-md border text-center transition-colors mb-1", source.color)}>
+                                {source.label}
+                              </div>
                             </CommandItem>
                           ))}
                         </CommandGroup>
@@ -203,13 +204,20 @@ export function LeadCard({ lead }: LeadCardProps) {
               </div>
               <div className="flex items-center gap-2">
                 {lead.followUpDate && (() => {
-                  const date = new Date(lead.followUpDate);
+                  let date = new Date(lead.followUpDate);
+                  // Fix timezone: treat UTC as local for display by reversing the offset
+                  date = new Date(date.valueOf() + date.getTimezoneOffset() * 60000);
+
                   const today = new Date();
                   today.setHours(0, 0, 0, 0);
+
                   const followDate = new Date(date);
                   followDate.setHours(0, 0, 0, 0);
-                  const isOverdue = followDate < today;
+
+                  // Compare timestamps to be safe
+                  const isOverdue = followDate.getTime() < today.getTime();
                   const isToday = followDate.getTime() === today.getTime();
+
                   return (
                     <span className={cn(
                       "flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[9px] font-medium",

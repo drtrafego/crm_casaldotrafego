@@ -6,10 +6,32 @@ import { NextResponse } from "next/server";
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, email, whatsapp, phone, company, notes, campaignSource, organizationId } = body;
+    const {
+      name, email, whatsapp, phone, company, notes, campaignSource, organizationId,
+      utm_source, utm_medium, utm_campaign, utm_term, utm_content, source
+    } = body;
 
     // Support both phone and whatsapp fields in payload
     const finalWhatsapp = whatsapp || phone;
+
+    // --- UTM Source Classification Logic ---
+    let normalizedSource = campaignSource;
+
+    // If no explicit campaignSource provided, try to infer from UTMs or source
+    if (!normalizedSource) {
+      const rawSource = (utm_source || source || "").toLowerCase();
+
+      if (rawSource) {
+        if (rawSource.includes("google") || rawSource.includes("adwords")) {
+          normalizedSource = "Google";
+        } else if (rawSource.includes("meta") || rawSource.includes("facebook") || rawSource.includes("instagram")) {
+          normalizedSource = "Meta";
+        } else {
+          // Fallback to the raw value if it doesn't match known patterns
+          normalizedSource = utm_source || source;
+        }
+      }
+    }
 
     // Basic validation - only name is required
     if (!name) {
@@ -50,7 +72,7 @@ export async function POST(request: Request) {
       whatsapp: finalWhatsapp,
       company,
       notes,
-      campaignSource,
+      campaignSource: normalizedSource,
       organizationId: orgId,
       columnId: targetColumn.id,
       status: "active",

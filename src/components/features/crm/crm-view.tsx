@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { DateRange } from "react-day-picker";
 import { subDays, isWithinInterval, startOfDay, endOfDay } from "date-fns";
-import { Column as DbColumn, Lead } from "@/server/db/schema";
+import { Lead, Column as DbColumn } from "@/server/db/schema";
 import { Board } from "@/components/features/kanban/board";
 import { LeadsList } from "@/components/features/crm/leads-list";
 import { DateRangePickerWithPresets } from "./date-range-picker";

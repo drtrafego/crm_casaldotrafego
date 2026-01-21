@@ -10,7 +10,7 @@ import { Lead, Column } from "@/server/db/schema";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { CalendarIcon, FilterX, TrendingUp, TrendingDown, Clock, Target, AlertTriangle, MessageSquareText, ArrowUpRight, CalendarClock } from "lucide-react";
-import { format, subDays, isWithinInterval, startOfDay, endOfDay, differenceInDays, parseISO } from "date-fns";
+import { format, subDays, isWithinInterval, startOfDay, endOfDay, differenceInDays, parseISO, addMinutes } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -341,12 +341,16 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
                 .filter(l => l.followUpDate && new Date(l.followUpDate) >= startOfDay(new Date()))
                 .sort((a, b) => new Date(a.followUpDate!).getTime() - new Date(b.followUpDate!).getTime())
                 .slice(0, 3)
-                .map(l => ({
-                    id: l.id,
-                    name: l.name,
-                    date: format(new Date(l.followUpDate!), 'dd/MM', { locale: ptBR }),
-                    note: l.followUpNote
-                })),
+                .map(l => {
+                    const d = new Date(l.followUpDate!);
+                    const fixedDate = addMinutes(d, d.getTimezoneOffset());
+                    return {
+                        id: l.id,
+                        name: l.name,
+                        date: format(fixedDate, 'dd/MM', { locale: ptBR }),
+                        note: l.followUpNote
+                    };
+                }),
 
             notesPercentage: totalLeads > 0 ? (leadsWithNotes / totalLeads) * 100 : 0,
             valuePercentage: totalLeads > 0 ? (leadsWithValue / totalLeads) * 100 : 0,

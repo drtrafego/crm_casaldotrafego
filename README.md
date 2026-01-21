@@ -47,12 +47,13 @@
 | **Seletor de Período** | Dropdown + Calendário | `date-range-picker.tsx` |
 
 #### KPI Cards (4 Cards Estatísticos)
-| Card | Cálculo | Ícone | Cor |
-|------|---------|-------|-----|
-| **Total de Leads** | `leads.length` | Users | Slate |
-| **Novos Leads** | Leads na primeira coluna | AlertCircle | Blue |
-| **Potencial (Pipeline)** | Soma valores exceto ganhos/perdidos | TrendingUp | Amber |
-| **Ganhos (Receita)** | Soma valores da coluna "Fechado/Ganho" | Wallet | Emerald |
+| Card | Fonte de Dados | Lógica de Cálculo | Ícone |
+|------|----------------|-------------------|-------|
+| **Total de Leads** | `leads.length` | Contagem total de leads carregados (filtrados) | Users (Slate) |
+| **Novos Leads** | Coluna Index 0 | Leads na coluna com ordem 0 ou nome "Novos" | AlertCircle (Blue) |
+| **Potencial (Pipeline)** | Colunas "Proposta" | Soma do `value` de leads com status "Proposta" ou "Enviada" | TrendingUp (Amber) |
+| **Ganhos (Receita)** | Coluna "Ganho" | Soma do `value` de leads na coluna "Fechado/Ganho" | Wallet (Emerald) |
+*Nota: Alguns cards possuem indicadores de tendência (ex: "+12% vs mês anterior") que atualmente são estáticos para fins visuais.*
 
 ---
 
@@ -85,16 +86,28 @@
 | **Área de Drop** | SortableContext para cards |
 
 #### Lead Card (`lead-card.tsx`)
-| Elemento | Descrição | Interação |
-|----------|-----------|-----------|
-| **Nome** | Nome do lead | - |
-| **Email** | Email (se houver) | - |
-| **Empresa** | Nome da empresa | - |
-| **Badge Origem** | Google/Meta/Captação/Orgânicos | Clique → Popover para alterar |
-| **Badge Follow-up** | Data do retorno agendado | Cor: vermelho/amarelo/azul |
-| **Valor** | R$ formatado | - |
-| **Botão WhatsApp** | Ícone verde | Abre wa.me no celular |
-| **Botão Editar** | Ícone lápis | Abre EditLeadDialog |
+
+**Layout Visual:**
+1.  **Cabeçalho:**
+    *   **Origem:** Badge clicável (Google, Meta, etc). Clique abre popover para troca rápida.
+    *   **WhatsApp:** Ícone verde ativo se houver número. Tooltip "Conversar no WhatsApp".
+    *   **Valor:** Badge verde com valor monetário (se > 0).
+    *   **Editar:** Ícone lápis (aparece apenas no hover do card).
+2.  **Corpo:**
+    *   **Nome:** Texto em negrito.
+    *   **Nota:** Última observação (truncada em 2 linhas).
+3.  **Rodapé:**
+    *   **Avatar:** Gerado via Vercel Avatars com iniciais.
+    *   **Follow-up:** Badge condicional:
+        *   🔴 Vermelho: Atrasado (`date < hoje`)
+        *   🟡 Âmbar: Hoje (`date == hoje`)
+        *   🔵 Azul: Futuro (`date > hoje`)
+    *   **Data Criação:** Ícone calendário + data curta (ex: "20 jan").
+
+**Interações:**
+*   **Drag:** Rotaciona levemente (2 graus) e fica semitransparente ao arrastar.
+*   **Clique:** Abre o modal de edição completo.
+*   **Botão WhatsApp:** Abre link `wa.me` em nova aba (previne abertura do modal).
 
 ---
 
@@ -131,18 +144,28 @@
 ### Arquivo
 `src/components/features/kanban/edit-lead-dialog.tsx`
 
-### Campos do Formulário
-| Campo | Tipo | Obrigatório | Descrição |
-|-------|------|-------------|-----------|
-| **Nome** | Input text | ✅ Sim | Nome do lead |
-| **Email** | Input email | ❌ Não | Email de contato |
-| **WhatsApp** | Input tel | ❌ Não | Número com DDD |
-| **Empresa** | Input text | ❌ Não | Nome da empresa |
-| **Valor** | Input number | ❌ Não | Valor em R$ |
-| **Origem** | Select | ❌ Não | Google, Meta, Captação Ativa, Orgânicos |
-| **Data Retorno** | DatePicker | ❌ Não | Quando fazer follow-up |
-| **Motivo Retorno** | Textarea | ❌ Não | Nota do follow-up |
-| **Observações** | Textarea | ❌ Não | Notas gerais |
+### Campos do Formulário (`EditLeadDialog`)
+
+O formulário é dividido em seções grid para melhor usabilidade:
+
+1.  **Dados Pessoais:**
+    *   **Nome:** (Obrigatório) Input texto.
+    *   **WhatsApp:** (Obrigatório) Input telefone c/ máscara visual.
+2.  **Contato & Empresa:**
+    *   **Email:** Input email.
+    *   **Empresa:** Input texto.
+3.  **Negócio:**
+    *   **Valor (R$):** Input number (step 0.01).
+    *   **Origem:** Select (Google, Meta, Captação, Orgânicos).
+4.  **Agendamento (Destaque Azul):**
+    *   **Data do Retorno:** Date Picker nativo.
+    *   **Motivo:** Input texto para explicar o follow-up.
+5.  **Detalhes:**
+    *   **Observações:** Textarea redimensionável.
+
+**Botão de Exclusão:**
+*   Localizado no rodapé esquerdo.
+*   Requer confirmação (clique duplo: "Excluir Lead" -> "Tem certeza? Sim/Não").
 
 ### Ações
 | Ação | Função Backend | Descrição |
@@ -208,27 +231,55 @@
 | X | Dia do mês |
 | Y | Quantidade de leads |
 
-#### 4. Funil de Vendas (BarChart Horizontal)
-| Eixo | Dados |
-|------|-------|
-| Y | Nome das colunas (Novos, Em Contato, Fechado...) |
-| X | Quantidade de leads em cada etapa |
+### Dados Detalhados (KPIs e Gráficos)
 
-#### 5. Insights de Observações
-| Card | Cálculo |
-|------|---------|
-| **Leads com Observação** | Contagem onde `notes` não é vazio |
-| **Leads sem Observação** | Contagem onde `notes` é vazio |
+#### 1. KPI Cards (Topo)
+Uma visão geral métrica do desempenho no período selecionado.
 
-### KPI Cards do Analytics
-| KPI | Descrição |
-|-----|-----------|
-| **Total de Leads** | No período filtrado |
-| **Leads Ganhos** | Com status "ganho/fechado" |
-| **Leads Perdidos** | Com status "perdido/lost" |
-| **Taxa de Conversão** | Ganhos / Total * 100 |
-| **Valor Total Ganho** | Soma valores ganhos |
-| **Ticket Médio** | Valor Total / Qtd Ganhos |
+| KPI | Fórmula / Lógica | Ícone/Cor |
+|-----|------------------|-----------|
+| **Receita Fechada** | Soma de `value` onde status é "Ganho" | 📈 Emerald |
+| **Pipeline Aberto** | Soma de `value` onde status NÃO é "Ganho" nem "Perdido" | 🎯 Blue |
+| **Total de Leads** | Contagem total de leads no filtro | ↗️ Indigo |
+| **Taxa de Conversão** | `(Leads Ganhos / Total Leads) * 100` | 📊 Green |
+| **Taxa de Perda** | `(Leads Perdidos / Total Leads) * 100` | ⚠️ Red |
+| **Ciclo Médio** | Média de `(Hoje - Data Criação)` para leads ganhos | 🕒 Amber |
+| **Follow-ups** | Contagem de datas futuras (`>= Hoje`) | 📅 Sky |
+
+#### 2. Gráficos Principais
+
+**A) Evolução de Vendas (Linha Temporal)**
+*   **Tipo:** Gráfico Composto (Área + Linha).
+*   **Eixo X:** Meses (ex: "Jan/24").
+*   **Eixo Y (Esq):** Volume de Leads (Área Indigo).
+*   **Eixo Y (Dir):** Receita em R$ (Linha Emerald).
+*   **Interação:** Tooltip com valores exatos ao passar o mouse.
+
+**B) Performance Regional (Mapa de Calor via DDD)**
+*   **Tipo:** Barras Horizontais.
+*   **Lógica:** Extrai o DDD do telefone (ex: "11" -> "SP").
+*   **Uso:** Identificar de onde vêm os leads geograficamente.
+*   **Interação:** Clique na barra filtra o dashboard inteiro por aquele estado.
+
+**C) Leads Diários (Volume)**
+*   **Tipo:** Barras Verticais.
+*   **Eixo X:** Dias (ex: "20/01").
+*   **Eixo Y:** Quantidade de Leads.
+*   **Uso:** Identificar picos de tráfego/campanhas.
+
+**D) Temperatura do Pipeline (Funil)**
+*   **Tipo:** Barras Horizontais Coloridas.
+*   **Eixo Y:** Etapas do Kanban (colunas).
+*   **Eixo X:** Quantidade de leads na etapa.
+*   **Interação:** **Clique na barra** filtra a lista de leads abaixo mostrando apenas quem está naquela etapa.
+
+#### 3. Insights Inteligentes (IA Simulado)
+Analisa o texto do campo `notes` (observações) para gerar métricas de qualidade.
+
+*   **Sentimento:** Busca palavras-chave como "interessado", "fechou" (Positivo) ou "cancelou", "perdido" (Negativo).
+*   **Ações:** Classifica leads por intenção (ex: "Agendou", "Pediu Proposta") baseado em keywords.
+*   **Qualidade:** Mostra % de leads com telefone, com email, e com valor preenchido.
+*   **Prévia:** Exibe os 3 últimos comentários registrados para contexto rápido.
 
 ---
 
