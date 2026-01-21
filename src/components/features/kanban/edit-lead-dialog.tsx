@@ -28,6 +28,7 @@ interface EditLeadDialogProps {
 
 export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
+  const [source, setSource] = useState(lead.campaignSource || "");
   const router = useRouter();
 
   async function handleSubmit(formData: FormData) {
@@ -148,7 +149,8 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                 <Label htmlFor="campaignSource" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Megaphone className="h-4 w-4 text-slate-400" /> Origem
                 </Label>
-                <Select name="campaignSource" defaultValue={lead.campaignSource || ""}>
+                <input type="hidden" name="campaignSource" value={source} />
+                <Select value={source} onValueChange={setSource}>
                   <SelectTrigger className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
                     <SelectValue placeholder="Selecione a origem" />
                   </SelectTrigger>

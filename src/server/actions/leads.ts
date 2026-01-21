@@ -281,6 +281,12 @@ export async function updateLeadContent(id: string, data: Partial<typeof leads.$
         updatePayload.value = null;
     }
 
+    // Handle empty strings for campaignSource
+    if (typeof updatePayload.campaignSource === 'string' && updatePayload.campaignSource.trim() === '') {
+        // @ts-ignore
+        updatePayload.campaignSource = null;
+    }
+
     // If nothing to update, return early
     // Note: We might still need to update columnId/position if passed, so check that later or check data keys
 

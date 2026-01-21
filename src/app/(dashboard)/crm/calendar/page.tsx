@@ -4,6 +4,7 @@ import { startOfMonth, endOfMonth, eachDayOfInterval, format, isSameMonth, isSam
 import { ptBR } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
+import { Clock } from "lucide-react";
 
 export const dynamic = 'force-dynamic';
 
@@ -110,20 +111,38 @@ export default async function CalendarPage() {
                 </div>
 
                 <div className="space-y-1 max-h-[80px] overflow-y-auto">
-                  {/* Follow-ups first (more important) */}
-                  {dayFollowUps.slice(0, 2).map((lead: Lead) => (
-                    <div key={`fu-${lead.id}`} className="text-xs p-1 rounded bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 truncate flex items-center gap-1">
-                      🕐 {lead.name}
-                    </div>
-                  ))}
+                  {/* Follow-ups first (more important or sorted by date) */}
+                  {dayFollowUps
+                    .sort((a: any, b: any) => new Date(a.followUpDate).getTime() - new Date(b.followUpDate).getTime())
+                    .slice(0, 3)
+                    .map((lead: Lead) => {
+                      const fDate = new Date(lead.followUpDate!);
+                      fDate.setHours(0, 0, 0, 0);
+                      const fNow = new Date();
+                      fNow.setHours(0, 0, 0, 0);
+
+                      let badgeClass = "bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800";
+
+                      if (fDate < fNow) {
+                        badgeClass = "bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800";
+                      } else if (fDate.getTime() === fNow.getTime()) {
+                        badgeClass = "bg-amber-50 dark:bg-amber-900/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800";
+                      }
+
+                      return (
+                        <div key={`fu-${lead.id}`} className={cn("text-xs p-1 rounded border truncate flex items-center gap-1", badgeClass)}>
+                          <Clock className="h-3 w-3 shrink-0" /> {lead.name}
+                        </div>
+                      );
+                    })}
                   {/* New leads */}
                   {dayLeads.slice(0, 2).map((lead: Lead) => (
                     <div key={lead.id} className="text-xs p-1 rounded bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-800 truncate">
                       {lead.name}
                     </div>
                   ))}
-                  {(dayLeads.length + dayFollowUps.length) > 4 && (
-                    <span className="text-[10px] text-slate-400">+{dayLeads.length + dayFollowUps.length - 4} mais</span>
+                  {(dayLeads.length + dayFollowUps.length) > 5 && (
+                    <span className="text-[10px] text-slate-400">+{dayLeads.length + dayFollowUps.length - 5} mais</span>
                   )}
                 </div>
               </div>
