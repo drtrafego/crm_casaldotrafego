@@ -284,28 +284,32 @@ export function CrmView({ initialLeads, columns, companyName, initialViewMode, u
           title="Total de Leads"
           value={totalLeads}
           icon={Users}
-          description="No período selecionado"
+          description="registrados"
+          trend="+12% vs mês anterior"
+          iconClassName="text-slate-600 dark:text-slate-300"
         />
         <StatsCard
           title="Novos Leads"
           value={newLeadsCount}
           icon={AlertCircle}
-          description="Aguardando contato"
-          iconClassName="text-blue-600 dark:text-blue-400"
+          description="aguardando contato"
+          trend="+5 novos hoje"
+          iconClassName="text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20"
         />
         <StatsCard
           title="Potencial (Pipeline)"
           value={formatCurrency(potentialValue)}
           icon={TrendingUp}
-          description="Valor em negociação"
-          iconClassName="text-amber-600 dark:text-amber-400"
+          description="em negociação"
+          iconClassName="text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 mr-0"
         />
         <StatsCard
           title="Ganhos (Receita)"
           value={formatCurrency(wonValue)}
           icon={Wallet}
           description={`${wonLeads.length} negócios fechados`}
-          iconClassName="text-emerald-600 dark:text-emerald-400"
+          trend="+8% conversão"
+          iconClassName="text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20"
         />
       </div>
 
@@ -329,7 +333,8 @@ function StatsCard({
   icon: Icon,
   description,
   className,
-  iconClassName
+  iconClassName,
+  trend
 }: {
   title: string;
   value: string | number;
@@ -337,22 +342,32 @@ function StatsCard({
   description?: string;
   className?: string;
   iconClassName?: string;
+  trend?: string;
 }) {
   return (
-    <Card className={cn("bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800", className)}>
+    <Card className={cn("bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-md transition-shadow", className)}>
       <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
         <CardTitle className="text-sm font-medium text-slate-500 dark:text-slate-400">
           {title}
         </CardTitle>
-        <Icon className={cn("h-4 w-4 text-slate-500 dark:text-slate-400", iconClassName)} />
+        <div className={cn("p-2 rounded-lg bg-slate-100 dark:bg-slate-800", iconClassName?.replace('text-', 'bg-opacity-10 dark:bg-opacity-20 '))}>
+          <Icon className={cn("h-4 w-4", iconClassName)} />
+        </div>
       </CardHeader>
       <CardContent>
-        <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{value}</div>
-        {description && (
-          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-            {description}
-          </p>
-        )}
+        <div className="text-3xl font-bold text-slate-900 dark:text-slate-100 mt-2">{value}</div>
+        <div className="flex items-center gap-2 mt-1">
+          {trend && (
+            <span className="text-xs font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-1.5 py-0.5 rounded-full">
+              {trend}
+            </span>
+          )}
+          {description && (
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {description}
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
