@@ -39,6 +39,80 @@
 
 ---
 
+### Vista de Lista (Detalhada)
+📁 **Arquivo:** `src/components/features/crm/leads-list.tsx`
+
+| Coluna | Descrição | Estilo |
+|--------|-----------|--------|
+| **Lead (Nome + Email)** | Nome em bold, email em cinza abaixo | `font-semibold` + `text-xs text-slate-500` |
+| **Empresa** | Nome da empresa do lead | `text-sm font-medium` |
+| **Status** | Badge colorido com nome da coluna Kanban | Pastel: `bg-emerald-50` (Ganho), `bg-blue-50` (Novo), `bg-indigo-50` (Em progresso), `bg-slate-100` (Perdido) |
+| **Origem** | Fonte do lead (Google, Meta, etc.) | Badge colorido por fonte |
+| **Contato** | Ícone WhatsApp clicável | Verde emerald, aparece no hover |
+| **Próximo Passo** | Data do follow-up agendado | Vermelho (atrasado), Âmbar (hoje), Cinza (futuro) |
+| **Valor** | Valor monetário do lead | `font-mono` alinhado à direita |
+
+**Recursos da Tabela:**
+- **Pesquisa Global:** Filtra por nome, email, empresa
+- **Ordenação:** Clique no cabeçalho para ordenar
+- **Paginação:** Automática com TanStack Table
+- **Hover Interativo:** Linha destaca ao passar mouse
+- **Clique para Editar:** Abre modal de edição do lead
+- **Total no Rodapé:** Soma de todos os valores do pipeline
+
+---
+
+## ⚙️ Backend - Server Actions
+
+📁 **Arquivo Principal:** `src/server/actions/leads.ts`
+
+### Funções Disponíveis
+
+| Função | Descrição | Uso |
+|--------|-----------|-----|
+| `getLeads()` | Busca todos os leads | Carregamento inicial de páginas |
+| `getColumns()` | Busca todas as colunas do Kanban | Carregamento do board |
+| `createLead(formData)` | Cria novo lead | Form "Novo Lead" |
+| `updateLeadStatus(id, columnId, position)` | Move lead entre colunas | Drag & drop no Kanban |
+| `updateLeadContent(id, data)` | Atualiza dados do lead | Modal de edição |
+| `deleteLead(id)` | Remove lead | Botão excluir no modal |
+| `createColumn(title)` | Cria nova coluna | Botão "+" no Kanban |
+| `updateColumn(id, title)` | Renomeia coluna | Edição inline |
+| `updateColumnOrder(orderedIds)` | Reordena colunas | Drag & drop de colunas |
+| `deleteColumn(id)` | Remove coluna (move leads) | Menu da coluna |
+
+### Campos Editáveis do Lead
+```typescript
+const allowedFields = [
+  'name',           // Nome do lead
+  'company',        // Empresa
+  'email',          // Email
+  'whatsapp',       // Telefone/WhatsApp
+  'notes',          // Observações
+  'value',          // Valor (R$)
+  'campaignSource', // Origem (Google, Meta, etc.)
+  'followUpDate',   // Data do retorno
+  'followUpNote'    // Nota do retorno
+];
+```
+
+### Multi-Tenant Mode
+O sistema opera em **Single Tenant Mode** (workspace compartilhado):
+```typescript
+// src/server/actions/leads.ts
+async function getOrgId() {
+  return "bilder_agency_shared"; // Todos os dados em um workspace
+}
+```
+
+Para habilitar Multi-Tenant, integre com Stack Auth e use:
+```typescript
+const user = await stackServerApp.getUser();
+return user?.selectedTeam?.id || "default";
+```
+
+---
+
 ### Página Analytics (`/crm/analytics`)
 📁 **Arquivo:** `src/app/(dashboard)/crm/analytics/page.tsx` → `src/components/features/crm/analytics-dashboard.tsx`
 
