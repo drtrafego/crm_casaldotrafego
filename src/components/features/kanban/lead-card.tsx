@@ -97,7 +97,7 @@ export function LeadCard({ lead }: LeadCardProps) {
           <CardContent className="p-4 space-y-3">
             {/* Header with Tags & Source Selector */}
             <div className="flex items-start justify-between gap-2">
-              <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()}>
+              <div className="flex flex-wrap gap-1" onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
                 <Popover open={openSourcePopover} onOpenChange={setOpenSourcePopover}>
                   <PopoverTrigger asChild>
                     <Button variant="ghost" className="h-6 px-1.5 py-0 hover:bg-transparent p-0">
@@ -155,6 +155,7 @@ export function LeadCard({ lead }: LeadCardProps) {
                             window.open(getWhatsAppLink(lead.whatsapp), '_blank');
                           }
                         }}
+                        onPointerDown={(e) => e.stopPropagation()}
                       >
                         <MessageCircle className="h-3.5 w-3.5" />
                       </Button>

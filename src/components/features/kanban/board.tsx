@@ -12,6 +12,7 @@ import {
   KeyboardSensor,
   TouchSensor,
   closestCorners,
+  pointerWithin,
   DragStartEvent,
   DragOverEvent,
   DragEndEvent,
@@ -165,6 +166,7 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
         const oldIndex = columns.findIndex((col) => col.id === activeId);
         const newIndex = columns.findIndex((col) => col.id === overId);
         const newOrder = arrayMove(columns, oldIndex, newIndex);
+        console.log(`[Board] Moving column ${active.data.current.column.title} from ${oldIndex} to ${newIndex}`);
 
         // Set ignore flag BEFORE updating state to prevent race condition
         ignoreExternalUpdatesRef.current = true;
@@ -260,7 +262,7 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
     <DndContext
       id="crm-kanban-board"
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={pointerWithin}
       onDragStart={onDragStart}
       onDragOver={onDragOver}
       onDragEnd={onDragEnd}
