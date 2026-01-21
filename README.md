@@ -1,499 +1,476 @@
-# 🚀 CRM Moderno - Manual de Replicação
+# 🚀 CRM Moderno - Documentação Completa do Projeto
 
-> **Objetivo:** Permitir que qualquer desenvolvedor replique este projeto do zero para um novo cliente em 5 minutos.
+> **Objetivo:** Documentação técnica exaustiva para replicação e manutenção do sistema.
 
 ---
 
 ## 📦 Stack Tecnológica
 
-| Camada | Tecnologia |
-|--------|------------|
-| **Framework** | Next.js 16 (App Router, React 19) |
-| **Banco de Dados** | PostgreSQL (Neon Serverless) |
-| **ORM** | Drizzle ORM |
-| **Autenticação** | Stack Auth (Opcional) |
-| **UI** | Tailwind CSS v4 + Radix UI + shadcn/ui |
-| **Charts** | Recharts |
-| **Deploy** | Vercel |
+| Camada | Tecnologia | Versão |
+|--------|------------|--------|
+| **Framework** | Next.js (App Router) | 16.x |
+| **React** | React | 19.x |
+| **Banco de Dados** | PostgreSQL (Neon Serverless) | - |
+| **ORM** | Drizzle ORM | 0.44.x |
+| **Autenticação** | Stack Auth | 2.8.x |
+| **UI Framework** | Tailwind CSS | 4.x |
+| **Componentes** | Radix UI + shadcn/ui | - |
+| **Charts** | Recharts | 3.6.x |
+| **Tabelas** | TanStack Table | 8.21.x |
+| **Drag & Drop** | dnd-kit | 6.3.x |
+| **Temas** | next-themes | 0.4.x |
+| **Deploy** | Vercel | - |
 
 ---
 
-## 🖥️ Frontend - Páginas e Funcionalidades
+# 🖥️ FRONTEND - Componentes por Página
 
-### Página Principal: Dashboard CRM (`/crm`)
-📁 **Arquivo:** `src/app/(dashboard)/crm/page.tsx` → `src/components/features/crm/crm-view.tsx`
+---
 
+## Página 1: Dashboard CRM (`/crm`)
+
+### Arquivos Envolvidos
+| Arquivo | Tipo | Descrição |
+|---------|------|-----------|
+| `src/app/(dashboard)/crm/page.tsx` | Page (Server) | Carrega dados e renderiza CrmView |
+| `src/components/features/crm/crm-view.tsx` | Component (Client) | Orquestra todo o Dashboard |
+| `src/components/features/crm/date-range-picker.tsx` | Component (Client) | Seletor de período com presets |
+
+### Elementos da Interface
+
+#### Header
+| Elemento | Descrição | Arquivo |
+|----------|-----------|---------|
+| **Logo/Nome Empresa** | Exibe `companyName` das settings | `crm-view.tsx` |
+| **Barra de Pesquisa** | Filtra leads em tempo real | `crm-view.tsx` |
+| **Toggle Kanban/Lista** | Alterna entre vistas | `crm-view.tsx` |
+| **Seletor de Período** | Dropdown + Calendário | `date-range-picker.tsx` |
+
+#### KPI Cards (4 Cards Estatísticos)
+| Card | Cálculo | Ícone | Cor |
+|------|---------|-------|-----|
+| **Total de Leads** | `leads.length` | Users | Slate |
+| **Novos Leads** | Leads na primeira coluna | AlertCircle | Blue |
+| **Potencial (Pipeline)** | Soma valores exceto ganhos/perdidos | TrendingUp | Amber |
+| **Ganhos (Receita)** | Soma valores da coluna "Fechado/Ganho" | Wallet | Emerald |
+
+---
+
+## Vista Kanban
+
+### Arquivos Envolvidos
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/components/kanban-board.tsx` | Board principal com DnD |
+| `src/components/features/kanban/board.tsx` | Lógica de drag & drop |
+| `src/components/features/kanban/column.tsx` | Coluna do Kanban |
+| `src/components/features/kanban/lead-card.tsx` | Card de cada lead |
+
+### Funcionalidades
+
+#### Board (`board.tsx`)
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Drag & Drop de Cards** | Move leads entre colunas |
+| **Drag & Drop de Colunas** | Reordena colunas |
+| **Adicionar Coluna** | Botão "+" cria nova coluna |
+| **Contador por Coluna** | Badge com quantidade de leads |
+
+#### Column (`column.tsx`)
+| Funcionalidade | Descrição |
+|----------------|-----------|
+| **Renomear** | Clique duplo ou menu → input inline |
+| **Excluir** | Menu dropdown → Move leads para coluna anterior |
+| **Contador** | Badge no header |
+| **Área de Drop** | SortableContext para cards |
+
+#### Lead Card (`lead-card.tsx`)
+| Elemento | Descrição | Interação |
+|----------|-----------|-----------|
+| **Nome** | Nome do lead | - |
+| **Email** | Email (se houver) | - |
+| **Empresa** | Nome da empresa | - |
+| **Badge Origem** | Google/Meta/Captação/Orgânicos | Clique → Popover para alterar |
+| **Badge Follow-up** | Data do retorno agendado | Cor: vermelho/amarelo/azul |
+| **Valor** | R$ formatado | - |
+| **Botão WhatsApp** | Ícone verde | Abre wa.me no celular |
+| **Botão Editar** | Ícone lápis | Abre EditLeadDialog |
+
+---
+
+## Vista Lista
+
+### Arquivo
+`src/components/features/crm/leads-list.tsx`
+
+### Colunas da Tabela
+| Coluna | Campo | Estilo | Descrição |
+|--------|-------|--------|-----------|
+| **Lead** | name + email | Bold + cinza abaixo | Nome principal e email secundário |
+| **Empresa** | company | Medium | Nome da empresa |
+| **Status** | columnId → column.title | Badge pastel | Cor varia: Ganho=verde, Perdido=cinza, Novo=blue |
+| **Origem** | campaignSource | Badge colorido | Google=rose, Meta=sky, Captação=amber, Orgânicos=emerald |
+| **Contato** | whatsapp | Ícone | Botão WhatsApp (aparece no hover) |
+| **Próximo Passo** | followUpDate | Badge com dot | Vermelho=atrasado, Âmbar=hoje, Cinza=futuro |
+| **Valor** | value | Monospace, direita | R$ formatado |
+
+### Recursos
+| Recurso | Biblioteca | Descrição |
+|---------|------------|-----------|
+| **Ordenação** | TanStack Table | Clique no header |
+| **Filtro Global** | TanStack Table | Pesquisa por texto |
+| **Paginação** | TanStack Table | Automática |
+| **Hover Effect** | Tailwind | Linha destaca |
+| **Clique para Editar** | useState | Abre EditLeadDialog |
+| **Total no Rodapé** | Manual | Soma dos valores |
+
+---
+
+## Modal de Edição de Lead
+
+### Arquivo
+`src/components/features/kanban/edit-lead-dialog.tsx`
+
+### Campos do Formulário
+| Campo | Tipo | Obrigatório | Descrição |
+|-------|------|-------------|-----------|
+| **Nome** | Input text | ✅ Sim | Nome do lead |
+| **Email** | Input email | ❌ Não | Email de contato |
+| **WhatsApp** | Input tel | ❌ Não | Número com DDD |
+| **Empresa** | Input text | ❌ Não | Nome da empresa |
+| **Valor** | Input number | ❌ Não | Valor em R$ |
+| **Origem** | Select | ❌ Não | Google, Meta, Captação Ativa, Orgânicos |
+| **Data Retorno** | DatePicker | ❌ Não | Quando fazer follow-up |
+| **Motivo Retorno** | Textarea | ❌ Não | Nota do follow-up |
+| **Observações** | Textarea | ❌ Não | Notas gerais |
+
+### Ações
+| Ação | Função Backend | Descrição |
+|------|----------------|-----------|
+| **Salvar** | `updateLeadContent()` | Atualiza campos editáveis |
+| **Excluir** | `deleteLead()` | Remove lead permanentemente |
+
+---
+
+## Modal de Novo Lead
+
+### Arquivo
+`src/components/features/kanban/new-lead-dialog.tsx`
+
+### Campos
+| Campo | Obrigatório |
+|-------|-------------|
+| Nome | ✅ Sim |
+| WhatsApp | ❌ Não |
+| Email | ❌ Não |
+| Empresa | ❌ Não |
+| Valor | ❌ Não |
+| Observações | ❌ Não |
+
+### Comportamento
+- Lead é criado na **primeira coluna** ("Novos Leads")
+- Posição inicial: **0** (topo da coluna)
+
+---
+
+## Página 2: Analytics (`/crm/analytics`)
+
+### Arquivos
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/app/(dashboard)/crm/analytics/page.tsx` | Page (Server) |
+| `src/components/features/crm/analytics-dashboard.tsx` | Dashboard completo |
+
+### Filtros Disponíveis
+| Filtro | Tipo | Opções |
+|--------|------|--------|
+| **Período** | DatePicker Range | Calendário livre |
+| **Origem** | Select | Todas, Google, Meta, Captação, Orgânicos |
+| **Estado** | Select | Todos, SP, RJ, MG... (extraído do DDD) |
+
+### Gráficos
+
+#### 1. Evolução de Vendas (ComposedChart)
+| Série | Tipo | Cor | Dados |
+|-------|------|-----|-------|
+| **Leads** | Area | Indigo | Contagem por mês |
+| **Receita** | Line | Emerald | Soma valores ganhos por mês |
+
+#### 2. Performance Regional (BarChart Horizontal)
+| Eixo | Dados |
+|------|-------|
+| Y | Estados (SP, RJ, MG...) |
+| X | Quantidade de leads |
+
+#### 3. Leads Diários (BarChart Vertical)
+| Eixo | Dados |
+|------|-------|
+| X | Dia do mês |
+| Y | Quantidade de leads |
+
+#### 4. Funil de Vendas (BarChart Horizontal)
+| Eixo | Dados |
+|------|-------|
+| Y | Nome das colunas (Novos, Em Contato, Fechado...) |
+| X | Quantidade de leads em cada etapa |
+
+#### 5. Insights de Observações
+| Card | Cálculo |
+|------|---------|
+| **Leads com Observação** | Contagem onde `notes` não é vazio |
+| **Leads sem Observação** | Contagem onde `notes` é vazio |
+
+### KPI Cards do Analytics
+| KPI | Descrição |
+|-----|-----------|
+| **Total de Leads** | No período filtrado |
+| **Leads Ganhos** | Com status "ganho/fechado" |
+| **Leads Perdidos** | Com status "perdido/lost" |
+| **Taxa de Conversão** | Ganhos / Total * 100 |
+| **Valor Total Ganho** | Soma valores ganhos |
+| **Ticket Médio** | Valor Total / Qtd Ganhos |
+
+---
+
+## Página 3: Calendário (`/crm/calendar`)
+
+### Arquivos
+| Arquivo | Descrição |
+|---------|-----------|
+| `src/app/(dashboard)/crm/calendar/page.tsx` | Page (Server) |
+| `src/components/features/crm/calendar-header.tsx` | Navegação de datas |
+
+### Elementos
+
+#### Grid Mensal
 | Elemento | Descrição |
 |----------|-----------|
-| **Header** | Título da empresa, barra de pesquisa, toggle Kanban/Lista |
-| **KPI Cards** | 4 cards: Total de Leads, Novos Leads, Potencial (Pipeline), Ganhos (Receita) |
-| **Vista Kanban** | Board drag-and-drop com colunas dinâmicas |
-| **Vista Lista** | Tabela interativa com filtros, ordenação, badges coloridos |
-| **Date Picker** | Filtro por período (Hoje, 7 dias, 30 dias, etc.) |
+| **Células** | Um quadrado por dia |
+| **Lead Badges** | Cards com leads criados naquele dia |
+| **Cor do Dia** | Destaque para hoje |
 
-**Funcionalidades:**
-- Arrastar e soltar leads entre colunas
-- Editar lead ao clicar (modal completo)
-- Botão WhatsApp direto em cada lead
-- Pesquisa global por nome/email/empresa
+#### Lista de Follow-ups
+| Seção | Cor | Filtro |
+|-------|-----|--------|
+| **Atrasados** | Vermelho | `followUpDate < hoje` |
+| **Hoje** | Amarelo | `followUpDate == hoje` |
+| **Próximos** | Azul | `followUpDate > hoje` |
 
----
-
-### Vista de Lista (Detalhada)
-📁 **Arquivo:** `src/components/features/crm/leads-list.tsx`
-
-| Coluna | Descrição | Estilo |
-|--------|-----------|--------|
-| **Lead (Nome + Email)** | Nome em bold, email em cinza abaixo | `font-semibold` + `text-xs text-slate-500` |
-| **Empresa** | Nome da empresa do lead | `text-sm font-medium` |
-| **Status** | Badge colorido com nome da coluna Kanban | Pastel: `bg-emerald-50` (Ganho), `bg-blue-50` (Novo), `bg-indigo-50` (Em progresso), `bg-slate-100` (Perdido) |
-| **Origem** | Fonte do lead (Google, Meta, etc.) | Badge colorido por fonte |
-| **Contato** | Ícone WhatsApp clicável | Verde emerald, aparece no hover |
-| **Próximo Passo** | Data do follow-up agendado | Vermelho (atrasado), Âmbar (hoje), Cinza (futuro) |
-| **Valor** | Valor monetário do lead | `font-mono` alinhado à direita |
-
-**Recursos da Tabela:**
-- **Pesquisa Global:** Filtra por nome, email, empresa
-- **Ordenação:** Clique no cabeçalho para ordenar
-- **Paginação:** Automática com TanStack Table
-- **Hover Interativo:** Linha destaca ao passar mouse
-- **Clique para Editar:** Abre modal de edição do lead
-- **Total no Rodapé:** Soma de todos os valores do pipeline
+#### Navegação
+| Elemento | Descrição |
+|----------|-----------|
+| **Seletor de Período** | Dropdown: Hoje, 7 dias, 30 dias... |
+| **Setas Mês** | Navega mês anterior/próximo |
+| **Picker de Data** | Popover com calendário |
+| **Botão Hoje** | Volta para o mês atual |
 
 ---
 
-## ⚙️ Backend - Server Actions
+## Página 4: Configurações (`/settings`)
 
-📁 **Arquivo Principal:** `src/server/actions/leads.ts`
+### Arquivo
+`src/app/(dashboard)/settings/page.tsx`
 
-### Funções Disponíveis
+### Configurações Disponíveis
+| Configuração | Tipo | Persistência | Descrição |
+|--------------|------|--------------|-----------|
+| **Nome da Empresa** | Input | Banco (settings.companyName) | Aparece no header |
+| **Tema** | Toggle 3 opções | LocalStorage (next-themes) | Claro / Escuro / Auto |
+| **URL Webhook** | Texto + Copiar | - | Endpoint para integrações |
+| **Vista Padrão** | Toggle | Banco (settings.viewMode) | Kanban ou Lista |
 
-| Função | Descrição | Uso |
-|--------|-----------|-----|
-| `getLeads()` | Busca todos os leads | Carregamento inicial de páginas |
-| `getColumns()` | Busca todas as colunas do Kanban | Carregamento do board |
-| `createLead(formData)` | Cria novo lead | Form "Novo Lead" |
-| `updateLeadStatus(id, columnId, position)` | Move lead entre colunas | Drag & drop no Kanban |
-| `updateLeadContent(id, data)` | Atualiza dados do lead | Modal de edição |
-| `deleteLead(id)` | Remove lead | Botão excluir no modal |
-| `createColumn(title)` | Cria nova coluna | Botão "+" no Kanban |
-| `updateColumn(id, title)` | Renomeia coluna | Edição inline |
-| `updateColumnOrder(orderedIds)` | Reordena colunas | Drag & drop de colunas |
-| `deleteColumn(id)` | Remove coluna (move leads) | Menu da coluna |
+---
 
-### Campos Editáveis do Lead
+# ⚙️ BACKEND - Server Actions
+
+---
+
+## Arquivo: `src/server/actions/leads.ts`
+
+### Funções de Leads
+
+| Função | Parâmetros | Retorno | Descrição |
+|--------|------------|---------|-----------|
+| `getLeads()` | - | `Lead[]` | Busca todos os leads (todos os orgs em modo single-tenant) |
+| `createLead(formData)` | FormData | void | Cria lead na primeira coluna |
+| `updateLeadStatus(id, columnId, position)` | string, string, number | void | Move lead (drag & drop) |
+| `updateLeadContent(id, data)` | string, Partial<Lead> | void | Atualiza campos editáveis |
+| `deleteLead(id)` | string | void | Remove lead permanentemente |
+
+### Funções de Colunas
+
+| Função | Parâmetros | Retorno | Descrição |
+|--------|------------|---------|-----------|
+| `getColumns()` | - | `Column[]` | Busca todas as colunas (cria padrão se vazio) |
+| `createColumn(title)` | string | void | Adiciona nova coluna no final |
+| `updateColumn(id, title)` | string, string | void | Renomeia coluna |
+| `updateColumnOrder(orderedIds)` | string[] | void | Reordena colunas |
+| `deleteColumn(id)` | string | void | Remove coluna (move leads) |
+
+### Campos Editáveis (Whitelist)
 ```typescript
 const allowedFields = [
   'name',           // Nome do lead
   'company',        // Empresa
   'email',          // Email
-  'whatsapp',       // Telefone/WhatsApp
+  'whatsapp',       // Telefone
   'notes',          // Observações
-  'value',          // Valor (R$)
-  'campaignSource', // Origem (Google, Meta, etc.)
-  'followUpDate',   // Data do retorno
-  'followUpNote'    // Nota do retorno
+  'value',          // Valor R$
+  'campaignSource', // Origem
+  'followUpDate',   // Data follow-up
+  'followUpNote'    // Nota follow-up
 ];
 ```
 
-### Multi-Tenant Mode
-O sistema opera em **Single Tenant Mode** (workspace compartilhado):
-```typescript
-// src/server/actions/leads.ts
-async function getOrgId() {
-  return "bilder_agency_shared"; // Todos os dados em um workspace
+---
+
+## Arquivo: `src/server/actions/settings.ts`
+
+| Função | Parâmetros | Retorno | Descrição |
+|--------|------------|---------|-----------|
+| `getSettings()` | - | `Settings` | Busca configurações (cria se não existe) |
+| `updateCompanyName(name)` | string | void | Atualiza nome da empresa |
+| `updateViewMode(viewMode)` | string | void | Salva preferência Kanban/Lista |
+
+---
+
+## API Routes
+
+### Webhook de Leads
+| Endpoint | Método | Arquivo |
+|----------|--------|---------|
+| `/api/webhooks/leads` | POST | `src/app/api/webhooks/leads/route.ts` |
+
+#### Payload Aceito
+```json
+{
+  "name": "João Silva",       // ✅ OBRIGATÓRIO
+  "email": "joao@email.com",  // ❌ Opcional
+  "whatsapp": "11999998888",  // ❌ Opcional
+  "phone": "11999998888",     // ❌ Alternativo ao whatsapp
+  "company": "Empresa LTDA",  // ❌ Opcional
+  "notes": "Observações",     // ❌ Opcional
+  "campaignSource": "Google"  // ❌ Opcional (Google, Meta, Captação Ativa, Organicos)
 }
 ```
 
-Para habilitar Multi-Tenant, integre com Stack Auth e use:
-```typescript
-const user = await stackServerApp.getUser();
-return user?.selectedTeam?.id || "default";
-```
-
 ---
 
-### Página Analytics (`/crm/analytics`)
-📁 **Arquivo:** `src/app/(dashboard)/crm/analytics/page.tsx` → `src/components/features/crm/analytics-dashboard.tsx`
+# 🌓 Sistema de Temas (Dark/Light Mode)
 
-| Gráfico | Descrição |
-|---------|-----------|
-| **Evolução de Vendas** | Área + Linha: Volume de leads vs Receita mensal |
-| **Performance Regional** | Barras horizontais: Leads por estado (extraído do DDD do WhatsApp) |
-| **Leads Diários** | Barras verticais: Volume de leads por dia |
-| **Funil de Vendas** | Barras: Leads por etapa do pipeline |
-| **Insights de Observações** | Cards com métricas das anotações dos leads |
-
-**Filtros disponíveis:**
-- Período (calendário)
-- Origem (Google, Meta, Captação Ativa, Orgânicos)
-- Estado (SP, RJ, MG, etc.)
-
----
-
-### Página Calendário (`/crm/calendar`)
-📁 **Arquivo:** `src/app/(dashboard)/crm/calendar/page.tsx`
-
-| Elemento | Descrição |
-|----------|-----------|
-| **Grid Mensal** | Calendário visual com leads do dia |
-| **Lista de Follow-ups** | 3 listas: Atrasados (vermelho), Hoje (amarelo), Próximos (azul) |
-| **Navegação** | Setas mês anterior/próximo, picker de data, botão "Hoje" |
-| **Seletor de Período** | Dropdown: Hoje, Ontem, Últimos 7/14/30 dias |
-
----
-
-### Página Configurações (`/settings`)
-📁 **Arquivo:** `src/app/(dashboard)/settings/page.tsx`
-
-| Configuração | Descrição |
-|--------------|-----------|
-| **Nome da Empresa** | Aparece no header do Dashboard |
-| **Tema** | Toggle: Claro / Escuro / Automático |
-| **URL do Webhook** | Endpoint para integração (copiável) |
-| **Preferência de Vista** | Kanban ou Lista (salva no banco) |
-
----
-
-## 🌓 Sistema de Temas (Dark/Light Mode)
-
-### Arquitetura
-O tema é gerenciado pela biblioteca **next-themes** com estratégia de classes CSS.
-
-📁 **Arquivos principais:**
+### Arquivos
 | Arquivo | Função |
 |---------|--------|
-| `src/components/theme-provider.tsx` | Provider que envolve a aplicação |
-| `src/app/layout.tsx` | Onde o ThemeProvider é montado |
-| `src/app/globals.css` | Variáveis CSS para cada tema |
-| `src/app/(dashboard)/settings/page.tsx` | Toggle de tema para o usuário |
+| `src/components/theme-provider.tsx` | Provider next-themes |
+| `src/app/layout.tsx` | Monta o provider |
+| `src/app/globals.css` | Variáveis CSS por tema |
+| `src/app/(dashboard)/settings/page.tsx` | Toggle do usuário |
 
-### Como Funciona
+### Padrão de Classes
+```tsx
+// Light mode primeiro, dark: depois
+<div className="bg-white dark:bg-slate-900">
+  <button className="hover:bg-slate-50 dark:hover:bg-slate-800">
+```
+
+### Forçar Tema
 ```tsx
 // theme-provider.tsx
-import { ThemeProvider } from "next-themes";
-
-export function Providers({ children }) {
-  return (
-    <ThemeProvider attribute="class" defaultTheme="system">
-      {children}
-    </ThemeProvider>
-  );
-}
-```
-
-### Variáveis CSS
-```css
-/* globals.css */
-@layer base {
-  :root {
-    --background: #ffffff;      /* Light mode */
-    --foreground: #171717;
-  }
-  .dark {
-    --background: #0a0a0a;      /* Dark mode */
-    --foreground: #ededed;
-  }
-}
-```
-
-### Padrão de Classes Tailwind
-Todos os componentes usam o padrão `classe-light dark:classe-dark`:
-```tsx
-// Exemplo de componente responsivo ao tema
-<div className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-  <button className="hover:bg-slate-50 dark:hover:bg-slate-800">
-    Clique aqui
-  </button>
-</div>
-```
-
-### Onde Alterar o Tema
-- **No código:** `src/components/theme-provider.tsx` → `defaultTheme`
-- **Na UI:** Página de Settings → Toggle de tema
-- **Forçar tema fixo:** Remova o toggle e defina `forcedTheme="dark"` ou `"light"` no Provider
-
----
-
-## ⚡ Guia de Setup Rápido (5 Minutos)
-
-### 1. Clone e Instale
-```bash
-git clone https://github.com/seu-usuario/crm-web.git
-cd crm-web
-npm install
-```
-
-### 2. Configure o Ambiente
-```bash
-# Crie o arquivo de variáveis de ambiente
-cp .env.example .env.local
-# OU crie manualmente:
-touch .env.local
-```
-
-### 3. Preencha as Variáveis (veja seção abaixo)
-
-### 4. Configure o Banco de Dados
-```bash
-# Aplica o schema no banco
-npm run db:push
-```
-
-### 5. Execute
-```bash
-npm run dev
-```
-🎉 Acesse **http://localhost:3000**
-
----
-
-## 🔐 Dicionário de Variáveis de Ambiente (.env.local)
-
-| Variável | Obrigatória | Exemplo | Descrição |
-|----------|-------------|---------|-----------|
-| `DATABASE_URL` | ✅ SIM | `postgresql://user:pass@host/db?sslmode=require` | URL de conexão PostgreSQL (Neon, Supabase, etc.) |
-| `NEXT_PUBLIC_STACK_PROJECT_ID` | ❌ Não | `proj_abc123` | ID do projeto no Stack Auth. Se ausente, sistema roda SEM login. |
-| `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY` | ❌ Não | `pk_live_xyz789` | Chave pública do Stack Auth. |
-
-### Exemplo Completo:
-```env
-# Banco de Dados (OBRIGATÓRIO)
-DATABASE_URL="postgresql://neondb_owner:SENHA@ep-host.neon.tech/neondb?sslmode=require"
-
-# Autenticação (OPCIONAL - sem isso, CRM roda em modo público)
-NEXT_PUBLIC_STACK_PROJECT_ID="proj_abc123"
-NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY="pk_live_xyz789"
+<ThemeProvider forcedTheme="dark"> // ou "light"
 ```
 
 ---
 
-## 🗄️ Banco de Dados - Script SQL
+# 🗄️ Banco de Dados
 
-O projeto usa **Drizzle ORM** com push automático. Execute `npm run db:push` para criar as tabelas.
+### Tabela: `columns`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| id | UUID (PK) | ID único |
+| title | TEXT | Nome da coluna |
+| order | INTEGER | Posição no board |
+| organization_id | TEXT | Tenant ID |
+| color | TEXT | Cor (opcional) |
 
-### Schema SQL Equivalente:
-```sql
--- Tabela de Colunas do Kanban
-CREATE TABLE columns (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  title TEXT NOT NULL,
-  "order" INTEGER NOT NULL DEFAULT 0,
-  organization_id TEXT NOT NULL,
-  color TEXT
-);
+### Tabela: `leads`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| id | UUID (PK) | ID único |
+| name | TEXT | Nome do lead |
+| company | TEXT | Empresa |
+| email | TEXT | Email |
+| whatsapp | TEXT | Telefone |
+| campaign_source | TEXT | Origem |
+| status | TEXT | Status textual |
+| column_id | UUID (FK) | Referência à coluna |
+| position | INTEGER | Posição na coluna |
+| organization_id | TEXT | Tenant ID |
+| notes | TEXT | Observações |
+| value | DECIMAL(10,2) | Valor em R$ |
+| follow_up_date | TIMESTAMP | Data do retorno |
+| follow_up_note | TEXT | Nota do retorno |
+| created_at | TIMESTAMP | Data de criação |
 
--- Tabela de Leads
-CREATE TABLE leads (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  name TEXT NOT NULL,
-  company TEXT,
-  email TEXT,
-  whatsapp TEXT,
-  campaign_source TEXT,
-  status TEXT NOT NULL,
-  column_id UUID REFERENCES columns(id),
-  position INTEGER NOT NULL DEFAULT 0,
-  organization_id TEXT NOT NULL,
-  notes TEXT,
-  value DECIMAL(10,2),
-  follow_up_date TIMESTAMP,
-  follow_up_note TEXT,
-  created_at TIMESTAMP NOT NULL DEFAULT NOW()
-);
-
--- Tabela de Configurações
-CREATE TABLE settings (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  organization_id TEXT NOT NULL UNIQUE,
-  company_name TEXT,
-  email TEXT,
-  view_mode TEXT DEFAULT 'kanban'
-);
-```
-
-### Colunas Padrão para Inicialização:
-Após criar o banco, insira as colunas iniciais do Kanban:
-```sql
-INSERT INTO columns (title, "order", organization_id) VALUES
-  ('Novos Leads', 0, 'bilder_agency_shared'),
-  ('Entrar em Contato', 1, 'bilder_agency_shared'),
-  ('Não Retornou', 2, 'bilder_agency_shared'),
-  ('Proposta Enviada', 3, 'bilder_agency_shared'),
-  ('Fechado', 4, 'bilder_agency_shared'),
-  ('Perdido', 5, 'bilder_agency_shared');
-```
+### Tabela: `settings`
+| Coluna | Tipo | Descrição |
+|--------|------|-----------|
+| id | UUID (PK) | ID único |
+| organization_id | TEXT (UNIQUE) | Tenant ID |
+| company_name | TEXT | Nome da empresa |
+| email | TEXT | Email do usuário |
+| view_mode | TEXT | 'kanban' ou 'list' |
 
 ---
 
-## 🔗 Integrações (Backend)
+# 🔧 Variáveis de Ambiente
 
-### Webhook para Captura de Leads
-
-**Endpoint:** `POST /api/webhooks/leads`
-
-**Payload JSON:**
-```json
-{
-  "name": "João Silva",
-  "email": "joao@email.com",
-  "whatsapp": "11999998888",
-  "phone": "11999998888",      // Alternativo ao whatsapp
-  "company": "Empresa LTDA",
-  "notes": "Interessado no produto X",
-  "campaignSource": "Google"   // Valores: Google, Meta, Captação Ativa, Organicos
-}
-```
-
-**Resposta de Sucesso:**
-```json
-{
-  "success": true,
-  "lead": {
-    "id": "uuid-do-lead",
-    "name": "João Silva",
-    ...
-  }
-}
-```
-
-**Validações:**
-- `name` é obrigatório (único campo requerido)
-- `email`, `whatsapp`, `company` são opcionais
-- Lead é inserido automaticamente na coluna "Novos Leads"
-- `whatsapp` ou `phone` são aceitos (whatsapp tem prioridade)
+| Variável | Obrigatória | Exemplo |
+|----------|-------------|---------|
+| `DATABASE_URL` | ✅ Sim | `postgresql://user:pass@host/db?sslmode=require` |
+| `NEXT_PUBLIC_STACK_PROJECT_ID` | ❌ Não | `proj_abc123` |
+| `NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY` | ❌ Não | `pk_live_xyz789` |
 
 ---
 
-## 🛠️ Troubleshooting (Solução de Problemas)
+# 🛠️ Troubleshooting
 
-### ❌ Erro 1: "DATABASE_URL not defined"
-**Causa:** Variável de ambiente não configurada.
-**Solução:** Verifique se `.env.local` existe e contém `DATABASE_URL`.
-
-### ❌ Erro 2: Hydration Mismatch / Servidor vs Cliente
-**Causa:** Componente renderiza diferente no servidor e cliente.
-**Solução:** Use `useState(false)` + `useEffect(() => setMounted(true), [])` para componentes que dependem do browser.
-
-### ❌ Erro 3: Botões/Cards Não Clicáveis (z-index)
-**Causa:** Outro elemento está sobrepondo.
-**Solução:** Verifique se há `overflow-hidden` em containers pai ou ajuste o `z-index` do elemento afetado.
-
-### ❌ Erro 4: Hover com Fundo Branco em Dark Mode
-**Causa:** Faltam classes `dark:hover:` nos componentes.
-**Solução:** Adicione `dark:hover:bg-slate-800` aos elementos com hover.
+| Erro | Causa | Solução |
+|------|-------|---------|
+| `DATABASE_URL not defined` | Env não configurado | Criar `.env.local` |
+| Hydration Mismatch | Componente renderiza diferente | Usar `useEffect` para client-only |
+| Botões não clicáveis | z-index ou overflow | Ajustar CSS |
+| Hover branco no dark mode | Faltam classes `dark:hover:` | Adicionar classes |
+| Leads não aparecem | Coluna não existe | Inserir colunas padrão no banco |
 
 ---
 
-## 🎨 Guia de Personalização
-
-### Cores (Tema Global)
-📁 **Arquivo:** `src/app/globals.css`
-```css
-@layer base {
-  :root {
-    --background: #ffffff;      /* Fundo Light Mode */
-    --foreground: #171717;      /* Texto Light Mode */
-  }
-  .dark {
-    --background: #0a0a0a;      /* Fundo Dark Mode */
-    --foreground: #ededed;      /* Texto Dark Mode */
-  }
-}
-```
-
-### Cores Primárias (Indigo → Outra)
-Busque por `indigo` nos arquivos e substitua:
-- `bg-indigo-600` → `bg-blue-600`
-- `text-indigo-400` → `text-blue-400`
-
-📁 **Principais arquivos:**
-- `src/components/features/crm/crm-view.tsx`
-- `src/components/features/kanban/*`
-
-### Fontes
-📁 **Arquivo:** `src/app/layout.tsx`
-```tsx
-import { Inter } from "next/font/google";
-const font = Inter({ subsets: ["latin"] });
-// Troque "Inter" por "Roboto", "Poppins", etc.
-```
-
-### Textos/Labels
-- **Dashboard Title:** `src/components/features/crm/crm-view.tsx` (linha ~200)
-- **Colunas Kanban:** Diretamente no banco de dados (tabela `columns`)
-- **KPI Cards:** `src/components/features/crm/crm-view.tsx` (procure por `StatsCard`)
-
-### Logo/Ícone
-📁 **Arquivos:**
-- `src/app/favicon.ico`
-- Sidebar: `src/components/layout/sidebar.tsx`
-
----
-
-## ✅ Checklist de Replicação para Novo Cliente
+# ✅ Checklist de Replicação
 
 ```markdown
-### Preparação
-- [ ] Criar novo repositório Git
-- [ ] Configurar projeto no Vercel
-- [ ] Criar banco PostgreSQL (Neon/Supabase)
+### Setup
+- [ ] Clone do repositório
+- [ ] `npm install`
+- [ ] Criar `.env.local` com DATABASE_URL
 
-### Configuração
-- [ ] Adicionar `DATABASE_URL` nas variáveis do Vercel
-- [ ] (Opcional) Configurar Stack Auth e adicionar chaves
-- [ ] Executar `npm run db:push` para criar tabelas
-- [ ] Inserir colunas padrão do Kanban (SQL acima)
+### Banco
+- [ ] `npm run db:push`
+- [ ] Inserir colunas padrão (SQL)
 
 ### Personalização
-- [ ] Trocar cores primárias (se necessário)
-- [ ] Trocar fontes (se necessário)  
-- [ ] Atualizar favicon
-- [ ] Configurar nome da empresa em Settings
+- [ ] Cores: `globals.css` + buscar `indigo`
+- [ ] Fontes: `layout.tsx`
+- [ ] Favicon: `src/app/favicon.ico`
 
 ### Integrações
-- [ ] Configurar webhook no sistema de captura (ActiveCampaign, Elementor, etc.)
-- [ ] Testar envio de lead via Postman/Insomnia
-- [ ] Verificar se lead aparece na coluna "Novos Leads"
+- [ ] Webhook configurado na plataforma de captura
+- [ ] Testado com Postman
 
-### Deploy Final
-- [ ] Fazer push para main
-- [ ] Verificar deploy no Vercel
-- [ ] Testar em produção
+### Deploy
+- [ ] Push para GitHub
+- [ ] Conectar Vercel
+- [ ] Adicionar env vars no Vercel
 ```
 
 ---
 
-## 📂 Estrutura de Pastas (Principais)
-
-```
-src/
-├── app/                          # Rotas Next.js (App Router)
-│   ├── (dashboard)/              # Área logada
-│   │   ├── crm/                  # Dashboard principal
-│   │   │   ├── analytics/        # Página de Analytics
-│   │   │   └── calendar/         # Página de Calendário
-│   │   └── settings/             # Configurações
-│   ├── api/webhooks/leads/       # Webhook de captura
-│   └── login/                    # Página de login
-├── components/
-│   ├── features/
-│   │   ├── crm/                  # Componentes do CRM
-│   │   └── kanban/               # Board Kanban
-│   ├── layout/                   # Sidebar, Header
-│   └── ui/                       # Componentes base (shadcn)
-├── lib/                          # Utilitários
-└── server/
-    ├── actions/                  # Server Actions
-    └── db/schema.ts              # Schema do Banco
-```
-
----
-
-## 📞 Suporte
-
-Para dúvidas ou problemas, entre em contato com a equipe de desenvolvimento.
-
----
-
-*Documentação gerada automaticamente - CRM v2.2*
+*Documentação Completa - CRM v2.3*
