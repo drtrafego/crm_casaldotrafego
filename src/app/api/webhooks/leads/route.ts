@@ -77,6 +77,11 @@ export async function POST(request: Request) {
       columnId: targetColumn.id,
       status: "active",
       position: 0, // Add to top
+      // Persist raw UTM data
+      utmSource: utm_source || source,
+      utmMedium: utm_medium,
+      utmCampaign: utm_campaign,
+      pagePath: body.page_path,
     }).returning();
 
     return NextResponse.json({ success: true, lead: newLead[0] });
