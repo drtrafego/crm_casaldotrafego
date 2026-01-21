@@ -19,12 +19,12 @@ import { createLead } from "@/server/actions/leads";
 import { useFormStatus } from "react-dom";
 
 function SubmitButton() {
-    const { pending } = useFormStatus();
-    return (
-        <Button type="submit" disabled={pending} className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto">
-            {pending ? "Salvando..." : "Salvar Lead"}
-        </Button>
-    );
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" disabled={pending} className="bg-indigo-600 hover:bg-indigo-700 text-white w-full sm:w-auto">
+      {pending ? "Salvando..." : "Salvar Lead"}
+    </Button>
+  );
 }
 
 export function NewLeadDialog() {
@@ -49,46 +49,46 @@ export function NewLeadDialog() {
           <Plus className="mr-2 h-4 w-4" /> Adicionar Lead
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] bg-white">
+      <DialogContent className="sm:max-w-[500px] bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800">
         <DialogHeader>
-          <DialogTitle className="text-slate-900">Novo Lead</DialogTitle>
-          <DialogDescription className="text-slate-500">
+          <DialogTitle className="text-slate-900 dark:text-slate-100">Novo Lead</DialogTitle>
+          <DialogDescription className="text-slate-500 dark:text-slate-400">
             Preencha as informações do lead abaixo. Ele será adicionado à coluna &quot;Novos Leads&quot;.
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="grid gap-4 py-4">
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="name" className="text-slate-700">Nome</Label>
-              <Input id="name" name="name" placeholder="Nome do cliente" required className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
+              <Label htmlFor="name" className="text-slate-700 dark:text-slate-300">Nome</Label>
+              <Input id="name" name="name" placeholder="Nome do cliente" required className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="whatsapp" className="text-slate-700">Whatsapp (Principal)</Label>
-              <Input id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999" required className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
-            </div>
-          </div>
-          
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label htmlFor="email" className="text-slate-700">Email (Opcional)</Label>
-              <Input id="email" name="email" type="email" placeholder="cliente@email.com" className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
-            </div>
-            <div className="grid gap-2">
-              <Label htmlFor="company" className="text-slate-700">Empresa (Opcional)</Label>
-              <Input id="company" name="company" placeholder="Nome da empresa" className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
+              <Label htmlFor="whatsapp" className="text-slate-700 dark:text-slate-300">Whatsapp (Principal)</Label>
+              <Input id="whatsapp" name="whatsapp" placeholder="(11) 99999-9999" required className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="value" className="text-slate-700">Valor (R$)</Label>
-              <Input id="value" name="value" type="number" step="0.01" placeholder="0,00" className="bg-white border-slate-200 focus-visible:ring-indigo-500" />
+              <Label htmlFor="email" className="text-slate-700 dark:text-slate-300">Email (Opcional)</Label>
+              <Input id="email" name="email" type="email" placeholder="cliente@email.com" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="company" className="text-slate-700 dark:text-slate-300">Empresa (Opcional)</Label>
+              <Input id="company" name="company" placeholder="Nome da empresa" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
             </div>
           </div>
-          
+
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="value" className="text-slate-700 dark:text-slate-300">Valor (R$)</Label>
+              <Input id="value" name="value" type="number" step="0.01" placeholder="0,00" className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500" />
+            </div>
+          </div>
+
           <div className="grid gap-2">
-            <Label htmlFor="notes" className="text-slate-700">Obs</Label>
-            <Textarea id="notes" name="notes" placeholder="Observações adicionais..." className="bg-white border-slate-200 focus-visible:ring-indigo-500 min-h-[100px]" />
+            <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300">Obs</Label>
+            <Textarea id="notes" name="notes" placeholder="Observações adicionais..." className="bg-white dark:bg-slate-950 border-slate-200 dark:border-slate-800 focus-visible:ring-indigo-500 min-h-[100px]" />
           </div>
 
           <DialogFooter className="mt-4">
