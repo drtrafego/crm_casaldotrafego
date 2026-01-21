@@ -60,7 +60,24 @@ const parseValue = (val: any) => {
 };
 
 interface AnalyticsDashboardProps {
-    initialLeads: Lead[];
+    initialLeads: (Lead | {
+        columnId?: string | null;
+        id: string;
+        name: string;
+        organizationId: string;
+        company: string | null;
+        email: string | null;
+        whatsapp: string | null;
+        campaignSource: string | null;
+        status: string;
+        value: string | null;
+        notes: string | null;
+        position: number;
+        createdAt: Date;
+        updatedAt: Date | null;
+        followUpDate: Date | null;
+        followUpNote: string | null;
+    })[];
     columns: Column[];
 }
 
