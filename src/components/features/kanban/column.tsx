@@ -111,7 +111,7 @@ export function Column({ column, leads }: ColumnProps) {
             <Input
               value={editTitle}
               onChange={(e) => setEditTitle(e.target.value)}
-              className="h-8 text-sm bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100 border-2 border-indigo-400 focus:border-indigo-600 shadow-sm"
+              className="h-9 text-sm font-medium bg-white dark:bg-slate-950 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-800 shadow-sm rounded-md px-3 focus-visible:ring-1 focus-visible:ring-slate-400 focus-visible:border-slate-400"
               autoFocus
               onKeyDown={(e) => {
                 if (e.key === ' ') e.stopPropagation();
