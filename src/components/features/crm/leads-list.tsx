@@ -41,8 +41,8 @@ export function LeadsList({ leads, columns }: LeadsListProps) {
 
   const totalValue = leads.reduce((sum, lead) => sum + parseFloat(lead.value || "0"), 0);
   const formattedTotal = new Intl.NumberFormat("pt-BR", {
-      style: "currency",
-      currency: "BRL",
+    style: "currency",
+    currency: "BRL",
   }).format(totalValue);
 
   const tableColumns: ColumnDef<Lead>[] = [
@@ -68,14 +68,14 @@ export function LeadsList({ leads, columns }: LeadsListProps) {
         const title = col?.title || "Unknown";
         const isWon = title.toLowerCase().includes("ganho") || title.toLowerCase().includes("won") || title.toLowerCase().includes("fechado");
         const isLost = title.toLowerCase().includes("perdido") || title.toLowerCase().includes("lost");
-        
+
         return (
-          <span 
+          <span
             className={cn(
               "inline-block rounded-full px-2 py-1 text-xs font-semibold",
               isWon ? "bg-green-100 text-green-700" :
-              isLost ? "bg-red-100 text-red-700" :
-              "bg-blue-100 text-blue-700"
+                isLost ? "bg-red-100 text-red-700" :
+                  "bg-blue-100 text-blue-700"
             )}
           >
             {title}
@@ -84,38 +84,88 @@ export function LeadsList({ leads, columns }: LeadsListProps) {
       },
     },
     {
-        accessorKey: "whatsapp",
-        header: "WhatsApp",
-        cell: ({ row }) => {
-            const whatsapp = row.getValue("whatsapp") as string;
-            const whatsappLink = whatsapp ? getWhatsAppLink(whatsapp) : "";
-            
-            return (
-                <div className="flex items-center gap-2">
-                    {whatsapp && whatsappLink ? (
-                        <a 
-                            href={whatsappLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-green-50 text-green-600 hover:text-green-700 transition-colors"
-                            title="Conversar no WhatsApp"
-                            onClick={(e) => e.stopPropagation()}
-                        >
-                            <MessageCircle className="h-4 w-4" />
-                        </a>
-                    ) : (
-                        <span className="text-slate-300">-</span>
-                    )}
-                </div>
-            );
-        }
+      accessorKey: "whatsapp",
+      header: "WhatsApp",
+      cell: ({ row }) => {
+        const whatsapp = row.getValue("whatsapp") as string;
+        const whatsappLink = whatsapp ? getWhatsAppLink(whatsapp) : "";
+
+        return (
+          <div className="flex items-center gap-2">
+            {whatsapp && whatsappLink ? (
+              <a
+                href={whatsappLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-green-50 text-green-600 hover:text-green-700 transition-colors"
+                title="Conversar no WhatsApp"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <MessageCircle className="h-4 w-4" />
+              </a>
+            ) : (
+              <span className="text-slate-300">-</span>
+            )}
+          </div>
+        );
+      }
+    },
+    {
+      accessorKey: "campaignSource",
+      header: "Origem",
+      cell: ({ row }) => {
+        const source = row.getValue("campaignSource") as string;
+        const sourceColors: Record<string, string> = {
+          'Google': 'bg-blue-100 text-blue-700',
+          'Meta': 'bg-indigo-100 text-indigo-700',
+          'Captação Ativa': 'bg-amber-100 text-amber-700',
+          'Organicos': 'bg-emerald-100 text-emerald-700',
+        };
+        return source ? (
+          <span className={cn("inline-block rounded-full px-2 py-1 text-xs font-medium", sourceColors[source] || 'bg-slate-100 text-slate-600')}>
+            {source}
+          </span>
+        ) : (
+          <span className="text-slate-300">-</span>
+        );
+      },
+    },
+    {
+      accessorKey: "followUpDate",
+      header: "Retorno",
+      cell: ({ row }) => {
+        const dateValue = row.getValue("followUpDate") as Date | null;
+        if (!dateValue) return <span className="text-slate-300">-</span>;
+
+        const date = new Date(dateValue);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const followDate = new Date(date);
+        followDate.setHours(0, 0, 0, 0);
+
+        const isOverdue = followDate < today;
+        const isToday = followDate.getTime() === today.getTime();
+
+        const formatted = date.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+
+        return (
+          <span className={cn(
+            "inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-medium",
+            isOverdue ? "bg-red-100 text-red-700" :
+              isToday ? "bg-amber-100 text-amber-700" :
+                "bg-sky-100 text-sky-700"
+          )}>
+            {isOverdue ? "⚠️" : isToday ? "📅" : "🕐"} {formatted}
+          </span>
+        );
+      },
     },
     {
       accessorKey: "value",
       header: ({ column }) => {
         return (
-            <div className="text-right">Valor</div>
-          );
+          <div className="text-right">Valor</div>
+        );
       },
       cell: ({ row }) => {
         const amount = parseFloat(row.getValue("value") || "0");
@@ -147,80 +197,80 @@ export function LeadsList({ leads, columns }: LeadsListProps) {
 
   return (
     <div className="w-full space-y-4">
-        <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-semibold text-foreground">Meus Leads</h2>
-                <div className="relative w-64">
-                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
-                    <Input
-                        placeholder="Filtrar leads..."
-                        value={globalFilter ?? ""}
-                        onChange={(event) => setGlobalFilter(event.target.value)}
-                        className="pl-8 bg-white dark:bg-slate-900"
-                    />
-                </div>
-            </div>
-            
-            <Table className="table-fixed">
-                <TableHeader>
-                {table.getHeaderGroups().map((headerGroup) => (
-                    <TableRow key={headerGroup.id}>
-                    {headerGroup.headers.map((header) => {
-                        return (
-                        <TableHead key={header.id}>
-                            {header.isPlaceholder
-                            ? null
-                            : flexRender(
-                                header.column.columnDef.header,
-                                header.getContext()
-                                )}
-                        </TableHead>
-                        );
-                    })}
-                    </TableRow>
-                ))}
-                </TableHeader>
-                <TableBody>
-                {table.getRowModel().rows?.length ? (
-                    table.getRowModel().rows.map((row) => (
-                    <TableRow
-                        key={row.id}
-                        data-state={row.getIsSelected() && "selected"}
-                        onClick={() => setEditingLead(row.original)}
-                        className="cursor-pointer hover:bg-muted/40 transition-colors"
-                    >
-                        {row.getVisibleCells().map((cell) => (
-                        <TableCell key={cell.id}>
-                            {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                            )}
-                        </TableCell>
-                        ))}
-                    </TableRow>
-                    ))
-                ) : (
-                    <TableRow>
-                    <TableCell
-                        colSpan={tableColumns.length}
-                        className="h-24 text-center"
-                    >
-                        Nenhum lead encontrado.
-                    </TableCell>
-                    </TableRow>
-                )}
-                </TableBody>
-                <TableFooter>
-                    <TableRow>
-                        <TableCell colSpan={5} className="text-right font-semibold">
-                            Total
-                        </TableCell>
-                        <TableCell className="text-right font-bold text-foreground">{formattedTotal}</TableCell>
-                    </TableRow>
-                </TableFooter>
-            </Table>
-            <p className="mt-4 text-center text-sm text-muted-foreground">resumo do pipeline de leads</p>
+      <div className="rounded-xl border border-border bg-background p-6 shadow-sm">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold text-foreground">Meus Leads</h2>
+          <div className="relative w-64">
+            <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Filtrar leads..."
+              value={globalFilter ?? ""}
+              onChange={(event) => setGlobalFilter(event.target.value)}
+              className="pl-8 bg-white dark:bg-slate-900"
+            />
+          </div>
         </div>
+
+        <Table className="table-fixed">
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead key={header.id}>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                  onClick={() => setEditingLead(row.original)}
+                  className="cursor-pointer hover:bg-muted/40 transition-colors"
+                >
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell key={cell.id}>
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={tableColumns.length}
+                  className="h-24 text-center"
+                >
+                  Nenhum lead encontrado.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+          <TableFooter>
+            <TableRow>
+              <TableCell colSpan={5} className="text-right font-semibold">
+                Total
+              </TableCell>
+              <TableCell className="text-right font-bold text-foreground">{formattedTotal}</TableCell>
+            </TableRow>
+          </TableFooter>
+        </Table>
+        <p className="mt-4 text-center text-sm text-muted-foreground">resumo do pipeline de leads</p>
+      </div>
 
       {editingLead && (
         <EditLeadDialog

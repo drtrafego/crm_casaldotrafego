@@ -24,6 +24,8 @@ export const leads = pgTable("leads", {
   organizationId: text("organization_id").notNull(),
   notes: text("notes"),
   value: decimal("value", { precision: 10, scale: 2 }), // New field for lead value
+  followUpDate: timestamp("follow_up_date"), // When to follow up with this lead
+  followUpNote: text("follow_up_note"), // Reason for follow-up
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

@@ -160,34 +160,34 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
     // Moving Columns
     if (active.data.current?.type === "Column") {
       if (activeId !== overId) {
-        setColumns((columns) => {
-          const oldIndex = columns.findIndex((col) => col.id === activeId);
-          const newIndex = columns.findIndex((col) => col.id === overId);
-          const newOrder = arrayMove(columns, oldIndex, newIndex);
+        const oldIndex = columns.findIndex((col) => col.id === activeId);
+        const newIndex = columns.findIndex((col) => col.id === overId);
+        const newOrder = arrayMove(columns, oldIndex, newIndex);
 
-          // Set ignore flag BEFORE calling server action to prevent race condition
-          ignoreExternalUpdatesRef.current = true;
-          console.log("[Board] Sending new column order:", newOrder.map(c => c.id));
+        // Set ignore flag BEFORE updating state to prevent race condition
+        ignoreExternalUpdatesRef.current = true;
 
-          // Call server action and handle potential errors
-          updateColumnOrder(newOrder.map(c => c.id))
-            .then((response: any) => {
-              console.log("[Board] Column order saved successfully");
-              if (response?.columns) {
-                // Authoritatively update local state with server-verified order
-                setColumns(response.columns);
-                // Force router refresh to clear Next.js client router cache
-                router.refresh();
-              }
-            })
-            .catch(err => {
-              console.error("Failed to update column order:", err);
-              setLastError(`Erro ao salvar ordem das colunas: ${err.message}`);
-              ignoreExternalUpdatesRef.current = false;
-            });
+        // Update local state immediately (optimistic)
+        setColumns(newOrder);
 
-          return newOrder;
-        });
+        console.log("[Board] Sending new column order:", newOrder.map(c => c.id));
+
+        // Call server action AFTER state update (not inside setState)
+        updateColumnOrder(newOrder.map(c => c.id))
+          .then((response: any) => {
+            console.log("[Board] Column order saved successfully");
+            if (response?.columns) {
+              // Authoritatively update local state with server-verified order
+              setColumns(response.columns);
+              // Force router refresh to clear Next.js client router cache
+              router.refresh();
+            }
+          })
+          .catch(err => {
+            console.error("Failed to update column order:", err);
+            setLastError(`Erro ao salvar ordem das colunas: ${err.message}`);
+            ignoreExternalUpdatesRef.current = false;
+          });
       }
       return;
     }
@@ -233,6 +233,25 @@ export function Board({ columns: initialColumns, initialLeads, onLeadsChange }: 
     await createColumn(newColumnName);
     setNewColumnName("");
     setIsCreateColumnOpen(false);
+  }
+
+  // Don't render DndContext until mounted to prevent hydration mismatch
+  if (!mounted) {
+    return (
+      <div className="flex flex-col h-full overflow-hidden">
+        <div className="flex gap-4 overflow-auto p-4 items-start h-full">
+          {initialColumns.map((col) => (
+            <div key={col.id} className="w-[300px] shrink-0 bg-slate-100 dark:bg-slate-900/50 rounded-lg p-3 animate-pulse">
+              <div className="h-6 bg-slate-200 dark:bg-slate-800 rounded w-1/2 mb-4"></div>
+              <div className="space-y-3">
+                <div className="h-24 bg-slate-200 dark:bg-slate-800 rounded"></div>
+                <div className="h-24 bg-slate-200 dark:bg-slate-800 rounded"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (

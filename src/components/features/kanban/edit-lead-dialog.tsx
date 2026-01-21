@@ -15,7 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { updateLeadContent } from "@/server/actions/leads";
 import { Lead } from "@/server/db/schema";
-import { User, Phone, Mail, Building2, FileText, Save, X, DollarSign, Trash2 } from "lucide-react";
+import { User, Phone, Mail, Building2, FileText, Save, X, DollarSign, Trash2, Megaphone, CalendarClock } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { deleteLead } from "@/server/actions/leads";
 import { useRouter } from "next/navigation";
 
@@ -30,17 +31,21 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
   const router = useRouter();
 
   async function handleSubmit(formData: FormData) {
+    const followUpDateValue = formData.get("followUpDate") as string;
     const data = {
-        name: formData.get("name") as string,
-        whatsapp: formData.get("whatsapp") as string,
-        email: formData.get("email") as string,
-        company: formData.get("company") as string,
-        notes: formData.get("notes") as string,
-        value: formData.get("value") as string,
-        columnId: lead.columnId,
-        position: lead.position,
+      name: formData.get("name") as string,
+      whatsapp: formData.get("whatsapp") as string,
+      email: formData.get("email") as string,
+      company: formData.get("company") as string,
+      notes: formData.get("notes") as string,
+      value: formData.get("value") as string,
+      campaignSource: formData.get("campaignSource") as string,
+      followUpDate: followUpDateValue ? new Date(followUpDateValue) : null,
+      followUpNote: formData.get("followUpNote") as string || null,
+      columnId: lead.columnId,
+      position: lead.position,
     };
-    
+
     console.log("Submitting edit with location:", { columnId: data.columnId, position: data.position });
 
     await updateLeadContent(lead.id, data);
@@ -67,7 +72,7 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
             Atualize as informações do lead {lead.name}.
           </DialogDescription>
         </DialogHeader>
-        
+
         <form action={handleSubmit}>
           <div className="p-6 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -75,51 +80,51 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                 <Label htmlFor="name" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <User className="h-4 w-4 text-slate-400" /> Nome
                 </Label>
-                <Input 
-                  id="name" 
-                  name="name" 
+                <Input
+                  id="name"
+                  name="name"
                   defaultValue={lead.name}
-                  required 
-                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors" 
+                  required
+                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="whatsapp" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Phone className="h-4 w-4 text-slate-400" /> Whatsapp
                 </Label>
-                <Input 
-                  id="whatsapp" 
-                  name="whatsapp" 
+                <Input
+                  id="whatsapp"
+                  name="whatsapp"
                   defaultValue={lead.whatsapp || ""}
                   required
-                  placeholder="(11) 99999-9999" 
-                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors" 
+                  placeholder="(11) 99999-9999"
+                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                 />
               </div>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Mail className="h-4 w-4 text-slate-400" /> Email
                 </Label>
-                <Input 
-                  id="email" 
-                  name="email" 
-                  type="email" 
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
                   defaultValue={lead.email || ""}
-                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors" 
+                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                 />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="company" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Building2 className="h-4 w-4 text-slate-400" /> Empresa
                 </Label>
-                <Input 
-                  id="company" 
-                  name="company" 
+                <Input
+                  id="company"
+                  name="company"
                   defaultValue={lead.company || ""}
-                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors" 
+                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                 />
               </div>
             </div>
@@ -129,65 +134,114 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                 <Label htmlFor="value" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <DollarSign className="h-4 w-4 text-slate-400" /> Valor (R$)
                 </Label>
-                <Input 
-                  id="value" 
-                  name="value" 
+                <Input
+                  id="value"
+                  name="value"
                   type="number"
                   step="0.01"
                   defaultValue={lead.value || ""}
                   placeholder="0.00"
-                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors" 
+                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors"
                 />
               </div>
+              <div className="space-y-2">
+                <Label htmlFor="campaignSource" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
+                  <Megaphone className="h-4 w-4 text-slate-400" /> Origem
+                </Label>
+                <Select name="campaignSource" defaultValue={lead.campaignSource || ""}>
+                  <SelectTrigger className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
+                    <SelectValue placeholder="Selecione a origem" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Google">Google</SelectItem>
+                    <SelectItem value="Meta">Meta</SelectItem>
+                    <SelectItem value="Captação Ativa">Captação Ativa</SelectItem>
+                    <SelectItem value="Organicos">Orgânicos</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
-            
+
+            {/* Follow-up Section */}
+            <div className="p-4 bg-sky-50 dark:bg-sky-950/30 rounded-lg border border-sky-100 dark:border-sky-900">
+              <h4 className="text-sm font-medium text-sky-700 dark:text-sky-300 mb-3 flex items-center gap-2">
+                <CalendarClock className="h-4 w-4" /> Agendar Retorno
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="followUpDate" className="text-slate-700 dark:text-slate-300 text-sm">
+                    Data do Retorno
+                  </Label>
+                  <Input
+                    id="followUpDate"
+                    name="followUpDate"
+                    type="date"
+                    defaultValue={lead.followUpDate ? new Date(lead.followUpDate).toISOString().split('T')[0] : ""}
+                    className="bg-white dark:bg-slate-900 border-sky-200 dark:border-sky-800"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="followUpNote" className="text-slate-700 dark:text-slate-300 text-sm">
+                    Motivo (ex: Quer esperar 30 dias)
+                  </Label>
+                  <Input
+                    id="followUpNote"
+                    name="followUpNote"
+                    defaultValue={lead.followUpNote || ""}
+                    placeholder="Ex: Cliente viajando, retornar após férias"
+                    className="bg-white dark:bg-slate-900 border-sky-200 dark:border-sky-800"
+                  />
+                </div>
+              </div>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="notes" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                 <FileText className="h-4 w-4 text-slate-400" /> Observações
               </Label>
-              <Textarea 
-                  id="notes" 
-                  name="notes" 
-                  defaultValue={lead.notes || ""}
-                  className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors min-h-[100px] resize-none" 
+              <Textarea
+                id="notes"
+                name="notes"
+                defaultValue={lead.notes || ""}
+                className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800 focus:bg-white dark:focus:bg-slate-950 transition-colors min-h-[100px] resize-none"
               />
             </div>
           </div>
 
           <DialogFooter className="p-6 pt-2 bg-slate-50/50 dark:bg-slate-900/30 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-               {isDeleting ? (
-                 <>
-                    <span className="text-sm text-red-600 font-medium">Tem certeza?</span>
-                    <Button 
-                      type="button" 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={handleDelete}
-                      className="bg-red-600 hover:bg-red-700"
-                    >
-                      Sim, excluir
-                    </Button>
-                    <Button 
-                      type="button" 
-                      variant="ghost" 
-                      size="sm"
-                      onClick={() => setIsDeleting(false)}
-                      className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-                    >
-                      Cancelar
-                    </Button>
-                 </>
-               ) : (
-                 <Button 
-                   type="button" 
-                   variant="ghost" 
-                   onClick={() => setIsDeleting(true)}
-                   className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
-                 >
-                   <Trash2 className="mr-2 h-4 w-4" /> Excluir Lead
-                 </Button>
-               )}
+              {isDeleting ? (
+                <>
+                  <span className="text-sm text-red-600 font-medium">Tem certeza?</span>
+                  <Button
+                    type="button"
+                    variant="destructive"
+                    size="sm"
+                    onClick={handleDelete}
+                    className="bg-red-600 hover:bg-red-700"
+                  >
+                    Sim, excluir
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsDeleting(false)}
+                    className="text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                  >
+                    Cancelar
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setIsDeleting(true)}
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  <Trash2 className="mr-2 h-4 w-4" /> Excluir Lead
+                </Button>
+              )}
             </div>
             <div className="flex items-center gap-2">
               <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300">
