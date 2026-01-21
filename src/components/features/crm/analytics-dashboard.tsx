@@ -19,6 +19,23 @@ import { cn } from "@/lib/utils";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+        return (
+            <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-3 rounded-lg shadow-xl">
+                <p className="font-medium text-slate-900 dark:text-slate-100 text-sm mb-1">{label}</p>
+                <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500" />
+                    <p className="text-slate-600 dark:text-slate-300 text-xs font-medium">
+                        {payload[0].value} Leads
+                    </p>
+                </div>
+            </div>
+        );
+    }
+    return null;
+};
+
 // --- Configuration ---
 const COLORS = ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#0ea5e9', '#14b8a6'];
 
@@ -507,10 +524,7 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
                                 tickLine={false}
                                 tick={{ fontSize: 10, fill: '#64748b' }}
                             />
-                            <RechartsTooltip
-                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
-                                cursor={{ fill: 'rgba(99,102,241,0.05)' }}
-                            />
+                            <RechartsTooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(99,102,241,0.05)' }} />
                             <Bar
                                 dataKey="leads"
                                 name="Leads"
