@@ -21,19 +21,20 @@ const Command = React.forwardRef<
 ))
 Command.displayName = CommandPrimitive.displayName
 
+import { Dialog, DialogContent } from "@/components/ui/dialog"
+
 const CommandDialog = ({
     children,
     ...props
-}: React.ComponentProps<typeof CommandPrimitive.Dialog>) => {
+}: React.ComponentProps<typeof Dialog>) => {
     return (
-        <CommandPrimitive.Dialog
-            {...props}
-            className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/80 pt-[20vh] sm:items-center sm:pt-0"
-        >
-            <CommandPrimitive.DialogContent className="overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-2xl sm:max-w-lg">
-                {children}
-            </CommandPrimitive.DialogContent>
-        </CommandPrimitive.Dialog>
+        <Dialog {...props}>
+            <DialogContent className="overflow-hidden p-0 shadow-lg">
+                <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+                    {children}
+                </Command>
+            </DialogContent>
+        </Dialog>
     )
 }
 

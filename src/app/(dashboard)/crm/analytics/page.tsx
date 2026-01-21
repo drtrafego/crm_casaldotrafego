@@ -14,7 +14,7 @@ export default async function AnalyticsPage() {
         <p className="text-slate-500 dark:text-slate-400">Visão geral interativa do desempenho do seu CRM.</p>
       </div>
 
-      <AnalyticsDashboard initialLeads={leads} columns={columns} />
+      <AnalyticsDashboard initialLeads={leads as any} columns={columns} />
     </div>
   );
 }
