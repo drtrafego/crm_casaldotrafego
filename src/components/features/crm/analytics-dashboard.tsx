@@ -631,147 +631,145 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
                             </div>
                         </div>
                     </div>
-                </div>
-        </div>
-                    
-                    {/* Row 4: Upcoming Follow-ups */ }
-    {
-        activitySummary.nextFollowUpsList.length > 0 && (
-            <div>
-                <h4 className="text-xs font-semibold text-slate-500 uppercase mb-2 flex items-center gap-2">
-                    <CalendarClock className="h-3 w-3" /> Próximos Retornos
-                </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                    {activitySummary.nextFollowUpsList.map((lead) => (
-                        <div key={lead.id} className="p-2.5 bg-sky-50 dark:bg-sky-950/30 rounded-lg border border-sky-100 dark:border-sky-900 flex flex-col gap-1">
-                            <div className="flex justify-between items-center">
-                                <span className="font-medium text-sm text-slate-700 dark:text-slate-300 truncate">{lead.name}</span>
-                                <span className="text-[10px] bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded text-sky-600 font-medium whitespace-nowrap">{lead.date}</span>
+
+                    {/* Row 4: Upcoming Follow-ups */}
+                    {
+                        activitySummary.nextFollowUpsList.length > 0 && (
+                            <div>
+                                <h4 className="text-xs font-semibold text-slate-500 uppercase mb-2 flex items-center gap-2">
+                                    <CalendarClock className="h-3 w-3" /> Próximos Retornos
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                    {activitySummary.nextFollowUpsList.map((lead) => (
+                                        <div key={lead.id} className="p-2.5 bg-sky-50 dark:bg-sky-950/30 rounded-lg border border-sky-100 dark:border-sky-900 flex flex-col gap-1">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-medium text-sm text-slate-700 dark:text-slate-300 truncate">{lead.name}</span>
+                                                <span className="text-[10px] bg-white dark:bg-slate-900 px-1.5 py-0.5 rounded text-sky-600 font-medium whitespace-nowrap">{lead.date}</span>
+                                            </div>
+                                            {lead.note && (
+                                                <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-1 italic">"{lead.note}"</p>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
                             </div>
-                            {lead.note && (
-                                <p className="text-slate-500 dark:text-slate-400 text-xs line-clamp-1 italic">"{lead.note}"</p>
-                            )}
-                        </div>
-                    ))}
-                </div>
-            </div>
-        )
-    }
+                        )
+                    }
                 </CardContent >
             </Card >
 
-        {/* 6. Filtered Leads List - Shows when column or keyword is selected */ }
-    {
-        (selectedColumn || selectedKeyword) && (
-            <Card>
-                <CardHeader className="pb-3">
-                    <CardTitle className="text-base flex items-center gap-2">
-                        Leads Filtrados
-                        <Badge variant="secondary" className="text-xs">
-                            {selectedColumn ? `Etapa: ${selectedColumn}` : `Ação: ${selectedKeyword}`}
-                        </Badge>
-                        <Button
-                            variant="ghost"
-                            size="sm"
-                            className="ml-auto text-xs"
-                            onClick={() => { setSelectedColumn(null); setSelectedKeyword(null); }}
-                        >
-                            Limpar Filtro
-                        </Button>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto">
-                        {filteredLeads
-                            .filter(lead => {
+            {/* 6. Filtered Leads List - Shows when column or keyword is selected */}
+            {
+                (selectedColumn || selectedKeyword) && (
+                    <Card>
+                        <CardHeader className="pb-3">
+                            <CardTitle className="text-base flex items-center gap-2">
+                                Leads Filtrados
+                                <Badge variant="secondary" className="text-xs">
+                                    {selectedColumn ? `Etapa: ${selectedColumn}` : `Ação: ${selectedKeyword}`}
+                                </Badge>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="ml-auto text-xs"
+                                    onClick={() => { setSelectedColumn(null); setSelectedKeyword(null); }}
+                                >
+                                    Limpar Filtro
+                                </Button>
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 max-h-[400px] overflow-y-auto">
+                                {filteredLeads
+                                    .filter(lead => {
+                                        if (selectedColumn) {
+                                            const col = columns.find(c => c.title === selectedColumn);
+                                            return col && lead.columnId === col.id;
+                                        }
+                                        if (selectedKeyword) {
+                                            const keywordMap: Record<string, string> = {
+                                                'Interessados': 'interesse',
+                                                'Proposta': 'proposta',
+                                                'Orçamento': 'orçamento',
+                                                'Em Contato': 'contato',
+                                                'Retornou': 'retornou',
+                                                'Sem Retorno': 'não retorn',
+                                                'Fechado': 'fechado',
+                                                'Agendamento': 'agend',
+                                                'Vídeo Call': 'video',
+                                                'Em Conversa': 'conversa',
+                                                'WhatsApp': 'whatsapp',
+                                                'Email': 'email',
+                                                'Reunião': 'reunião',
+                                                'Follow-up': 'follow',
+                                                'Aguardando': 'esperando',
+                                                'Analisando': 'analis',
+                                            };
+                                            const kw = keywordMap[selectedKeyword];
+                                            return kw && lead.notes?.toLowerCase().includes(kw);
+                                        }
+                                        return false;
+                                    })
+                                    .slice(0, 20)
+                                    .map(lead => (
+                                        <div
+                                            key={lead.id}
+                                            className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700 hover:border-indigo-200 transition-colors"
+                                        >
+                                            <div className="flex items-start justify-between mb-2">
+                                                <div>
+                                                    <h5 className="font-medium text-sm text-slate-800 dark:text-slate-200">{lead.name}</h5>
+                                                    {lead.company && <p className="text-xs text-slate-500">{lead.company}</p>}
+                                                </div>
+                                                {lead.value && (
+                                                    <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                                        {formatCurrency(parseValue(lead.value))}
+                                                    </span>
+                                                )}
+                                            </div>
+                                            {lead.notes && (
+                                                <p className="text-xs text-slate-500 line-clamp-2 mb-2">{lead.notes}</p>
+                                            )}
+                                            <div className="flex items-center justify-between text-[10px] text-slate-400">
+                                                <span>{lead.campaignSource || 'Direto'}</span>
+                                                <span>{format(new Date(lead.createdAt), 'dd/MM/yy', { locale: ptBR })}</span>
+                                            </div>
+                                        </div>
+                                    ))
+                                }
+                            </div>
+                            {filteredLeads.filter(lead => {
                                 if (selectedColumn) {
                                     const col = columns.find(c => c.title === selectedColumn);
                                     return col && lead.columnId === col.id;
                                 }
                                 if (selectedKeyword) {
                                     const keywordMap: Record<string, string> = {
-                                        'Interessados': 'interesse',
-                                        'Proposta': 'proposta',
-                                        'Orçamento': 'orçamento',
-                                        'Em Contato': 'contato',
-                                        'Retornou': 'retornou',
-                                        'Sem Retorno': 'não retorn',
-                                        'Fechado': 'fechado',
-                                        'Agendamento': 'agend',
-                                        'Vídeo Call': 'video',
-                                        'Em Conversa': 'conversa',
-                                        'WhatsApp': 'whatsapp',
-                                        'Email': 'email',
-                                        'Reunião': 'reunião',
-                                        'Follow-up': 'follow',
-                                        'Aguardando': 'esperando',
-                                        'Analisando': 'analis',
+                                        'Interessados': 'interesse', 'Proposta': 'proposta', 'Orçamento': 'orçamento',
+                                        'Em Contato': 'contato', 'Retornou': 'retornou', 'Sem Retorno': 'não retorn',
+                                        'Fechado': 'fechado', 'Agendamento': 'agend', 'Vídeo Call': 'video',
+                                        'Em Conversa': 'conversa', 'WhatsApp': 'whatsapp', 'Email': 'email',
+                                        'Reunião': 'reunião', 'Follow-up': 'follow', 'Aguardando': 'esperando', 'Analisando': 'analis',
                                     };
                                     const kw = keywordMap[selectedKeyword];
                                     return kw && lead.notes?.toLowerCase().includes(kw);
                                 }
                                 return false;
-                            })
-                            .slice(0, 20)
-                            .map(lead => (
-                                <div
-                                    key={lead.id}
-                                    className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700 hover:border-indigo-200 transition-colors"
-                                >
-                                    <div className="flex items-start justify-between mb-2">
-                                        <div>
-                                            <h5 className="font-medium text-sm text-slate-800 dark:text-slate-200">{lead.name}</h5>
-                                            {lead.company && <p className="text-xs text-slate-500">{lead.company}</p>}
-                                        </div>
-                                        {lead.value && (
-                                            <span className="text-xs font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
-                                                {formatCurrency(parseValue(lead.value))}
-                                            </span>
-                                        )}
-                                    </div>
-                                    {lead.notes && (
-                                        <p className="text-xs text-slate-500 line-clamp-2 mb-2">{lead.notes}</p>
-                                    )}
-                                    <div className="flex items-center justify-between text-[10px] text-slate-400">
-                                        <span>{lead.campaignSource || 'Direto'}</span>
-                                        <span>{format(new Date(lead.createdAt), 'dd/MM/yy', { locale: ptBR })}</span>
-                                    </div>
-                                </div>
-                            ))
-                        }
-                    </div>
-                    {filteredLeads.filter(lead => {
-                        if (selectedColumn) {
-                            const col = columns.find(c => c.title === selectedColumn);
-                            return col && lead.columnId === col.id;
-                        }
-                        if (selectedKeyword) {
-                            const keywordMap: Record<string, string> = {
-                                'Interessados': 'interesse', 'Proposta': 'proposta', 'Orçamento': 'orçamento',
-                                'Em Contato': 'contato', 'Retornou': 'retornou', 'Sem Retorno': 'não retorn',
-                                'Fechado': 'fechado', 'Agendamento': 'agend', 'Vídeo Call': 'video',
-                                'Em Conversa': 'conversa', 'WhatsApp': 'whatsapp', 'Email': 'email',
-                                'Reunião': 'reunião', 'Follow-up': 'follow', 'Aguardando': 'esperando', 'Analisando': 'analis',
-                            };
-                            const kw = keywordMap[selectedKeyword];
-                            return kw && lead.notes?.toLowerCase().includes(kw);
-                        }
-                        return false;
-                    }).length > 20 && (
-                            <p className="text-center text-xs text-slate-400 mt-3">
-                                Mostrando 20 de {filteredLeads.filter(lead => {
-                                    if (selectedColumn) {
-                                        const col = columns.find(c => c.title === selectedColumn);
-                                        return col && lead.columnId === col.id;
-                                    }
-                                    return false;
-                                }).length} leads
-                            </p>
-                        )}
-                </CardContent>
-            </Card>
-        )
-    }
+                            }).length > 20 && (
+                                    <p className="text-center text-xs text-slate-400 mt-3">
+                                        Mostrando 20 de {filteredLeads.filter(lead => {
+                                            if (selectedColumn) {
+                                                const col = columns.find(c => c.title === selectedColumn);
+                                                return col && lead.columnId === col.id;
+                                            }
+                                            return false;
+                                        }).length} leads
+                                    </p>
+                                )}
+                        </CardContent>
+                    </Card>
+                )
+            }
         </div >
     );
 }
