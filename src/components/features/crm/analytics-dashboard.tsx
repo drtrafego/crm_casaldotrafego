@@ -391,8 +391,15 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
                 <div className="flex flex-col sm:flex-row gap-3 w-full xl:w-auto items-center">
                     <Popover>
                         <PopoverTrigger asChild>
-                            <Button variant={"outline"} className={cn("w-[260px] justify-start text-left font-normal", !dateRange && "text-muted-foreground")}>
-                                <CalendarIcon className="mr-2 h-4 w-4" />
+                            <Button variant={"outline"} className={cn(
+                                "w-[260px] justify-start text-left font-normal",
+                                "flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 shadow-sm transition-all",
+                                "hover:bg-slate-50 hover:border-slate-300",
+                                "dark:border-slate-800 dark:bg-slate-900 dark:text-slate-100",
+                                "dark:hover:bg-slate-800 dark:hover:border-slate-700",
+                                !dateRange && "text-slate-500 dark:text-slate-400"
+                            )}>
+                                <CalendarIcon className="h-4 w-4" />
                                 {dateRange?.from ? (dateRange.to ? `${format(dateRange.from, "dd/MM/y")} - ${format(dateRange.to, "dd/MM/y")}` : format(dateRange.from, "dd/MM/y")) : <span>Selecione o período</span>}
                             </Button>
                         </PopoverTrigger>
