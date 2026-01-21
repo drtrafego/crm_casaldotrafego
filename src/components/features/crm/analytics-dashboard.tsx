@@ -204,6 +204,24 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
             .sort((a, b) => b.value - a.value)
             .slice(0, 8);
 
+        // Daily Leads Data (New Request)
+        const dailyMap = new Map<string, { date: string, leads: number, sortDate: Date }>();
+        filtered.forEach(lead => {
+            const d = new Date(lead.createdAt);
+            const key = format(d, 'yyyy-MM-dd');
+            const displayDate = format(d, 'dd/MM', { locale: ptBR });
+
+            if (!dailyMap.has(key)) {
+                dailyMap.set(key, { date: displayDate, leads: 0, sortDate: startOfDay(d) });
+            }
+            dailyMap.get(key)!.leads++;
+        });
+
+        // Ensure all days in range are represented if range is small, otherwise just days with data
+        // For now, just sorting existing data
+        const dailyData = Array.from(dailyMap.values())
+            .sort((a, b) => a.sortDate.getTime() - b.sortDate.getTime());
+
         // C) Funnel - Truncate long names
         const truncate = (str: string, max: number) => str.length > max ? str.substring(0, max) + '...' : str;
         const funnelData = columns.map(col => {
@@ -338,7 +356,8 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
             charts: {
                 timelineData,
                 stateData,
-                funnelData
+                funnelData,
+                dailyData
             },
             sourcePerformance,
             activitySummary
@@ -466,7 +485,45 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
                 </Card>
             </div>
 
-            {/* 4. Row 2: Pipeline Full Width - CLICKABLE */}
+            {/* 4. Row 2: Daily Leads Bar Chart - NEW USER REQUEST */}
+            <Card>
+                <CardHeader className="pb-2">
+                    <CardTitle className="text-base">Leads Diários</CardTitle>
+                    <CardDescription className="text-xs">Volume de leads por dia no período selecionado</CardDescription>
+                </CardHeader>
+                <CardContent className="h-[300px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={charts.dailyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" />
+                            <XAxis
+                                dataKey="date"
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fontSize: 10, fill: '#64748b' }}
+                                minTickGap={30}
+                            />
+                            <YAxis
+                                axisLine={false}
+                                tickLine={false}
+                                tick={{ fontSize: 10, fill: '#64748b' }}
+                            />
+                            <RechartsTooltip
+                                contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                                cursor={{ fill: 'rgba(99,102,241,0.05)' }}
+                            />
+                            <Bar
+                                dataKey="leads"
+                                name="Leads"
+                                fill="#8b5cf6"
+                                radius={[4, 4, 0, 0]}
+                                barSize={40}
+                            />
+                        </BarChart>
+                    </ResponsiveContainer>
+                </CardContent>
+            </Card>
+
+            {/* 5. Pipeline Full Width - CLICKABLE */}
             <Card>
                 <CardHeader className="pb-2">
                     <CardTitle className="text-base flex items-center gap-2">
