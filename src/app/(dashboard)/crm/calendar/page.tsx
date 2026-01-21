@@ -116,24 +116,25 @@ export default async function CalendarPage() {
       {/* Follow-ups List Section */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pb-6">
         {/* Overdue */}
-        <div className="bg-slate-900/95 text-white p-4 rounded-xl border border-slate-800 shadow-xl">
-          <h3 className="text-sm font-semibold text-red-400 flex items-center gap-2 mb-3">
+        {/* Overdue */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <h3 className="text-sm font-semibold text-red-600 dark:text-red-400 flex items-center gap-2 mb-3">
             <Clock className="h-4 w-4" /> Atrasados
-            <span className="text-xs bg-red-500/20 text-red-300 px-1.5 py-0.5 rounded ml-auto">{overdueCount}</span>
+            <span className="text-xs bg-red-100 dark:bg-red-500/20 text-red-700 dark:text-red-300 px-1.5 py-0.5 rounded ml-auto">{overdueCount}</span>
           </h3>
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
             {leadsWithFollowUp
               .filter((l: any) => new Date(l.followUpDate) < new Date(new Date().setHours(0, 0, 0, 0)))
               .map((lead: any) => (
-                <div key={lead.id} className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50 flex justify-between items-center group hover:bg-slate-800 transition-colors">
+                <div key={lead.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700/50 flex justify-between items-center group hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <div>
-                    <div className="font-medium text-sm text-slate-200">{lead.name}</div>
+                    <div className="font-medium text-sm text-slate-700 dark:text-slate-200">{lead.name}</div>
                     <div className="text-xs text-slate-500 mt-0.5">
                       {format(new Date(lead.followUpDate), "dd/MM")} • {format(new Date(lead.followUpDate), "HH:mm")}
                     </div>
                   </div>
                   {lead.whatsapp && (
-                    <a href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 p-2 rounded-full hover:bg-green-500/10 transition-colors">
+                    <a href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-500/10 transition-colors">
                       <span className="sr-only">Whatsapp</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
                     </a>
@@ -141,16 +142,17 @@ export default async function CalendarPage() {
                 </div>
               ))}
             {leadsWithFollowUp.filter((l: any) => new Date(l.followUpDate) < new Date(new Date().setHours(0, 0, 0, 0))).length === 0 && (
-              <p className="text-xs text-slate-500 italic text-center py-4">Nenhum atrasado</p>
+              <p className="text-xs text-slate-400 italic text-center py-4">Nenhum atrasado</p>
             )}
           </div>
         </div>
 
         {/* Today */}
-        <div className="bg-slate-900/95 text-white p-4 rounded-xl border border-slate-800 shadow-xl">
-          <h3 className="text-sm font-semibold text-amber-400 flex items-center gap-2 mb-3">
+        {/* Today */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <h3 className="text-sm font-semibold text-amber-600 dark:text-amber-400 flex items-center gap-2 mb-3">
             <Clock className="h-4 w-4" /> Para Hoje
-            <span className="text-xs bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded ml-auto">
+            <span className="text-xs bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300 px-1.5 py-0.5 rounded ml-auto">
               {leadsWithFollowUp.filter((l: any) => isSameDay(new Date(l.followUpDate), new Date())).length}
             </span>
           </h3>
@@ -158,15 +160,15 @@ export default async function CalendarPage() {
             {leadsWithFollowUp
               .filter((l: any) => isSameDay(new Date(l.followUpDate), new Date()))
               .map((lead: any) => (
-                <div key={lead.id} className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50 flex justify-between items-center group hover:bg-slate-800 transition-colors">
+                <div key={lead.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700/50 flex justify-between items-center group hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <div>
-                    <div className="font-medium text-sm text-slate-200">{lead.name}</div>
+                    <div className="font-medium text-sm text-slate-700 dark:text-slate-200">{lead.name}</div>
                     <div className="text-xs text-slate-500 mt-0.5">
                       {format(new Date(lead.followUpDate), "HH:mm")}
                     </div>
                   </div>
                   {lead.whatsapp && (
-                    <a href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 p-2 rounded-full hover:bg-green-500/10 transition-colors">
+                    <a href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-500/10 transition-colors">
                       <span className="sr-only">Whatsapp</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
                     </a>
@@ -174,14 +176,15 @@ export default async function CalendarPage() {
                 </div>
               ))}
             {leadsWithFollowUp.filter((l: any) => isSameDay(new Date(l.followUpDate), new Date())).length === 0 && (
-              <p className="text-xs text-slate-500 italic text-center py-4">Nada para hoje</p>
+              <p className="text-xs text-slate-400 italic text-center py-4">Nada para hoje</p>
             )}
           </div>
         </div>
 
         {/* Upcoming */}
-        <div className="bg-slate-900/95 text-white p-4 rounded-xl border border-slate-800 shadow-xl">
-          <h3 className="text-sm font-semibold text-sky-400 flex items-center gap-2 mb-3">
+        {/* Upcoming */}
+        <div className="bg-white dark:bg-slate-900 p-4 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm">
+          <h3 className="text-sm font-semibold text-sky-600 dark:text-sky-400 flex items-center gap-2 mb-3">
             <Clock className="h-4 w-4" /> Próximos
           </h3>
           <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
@@ -190,15 +193,15 @@ export default async function CalendarPage() {
               .sort((a: any, b: any) => new Date(a.followUpDate).getTime() - new Date(b.followUpDate).getTime())
               .slice(0, 10)
               .map((lead: any) => (
-                <div key={lead.id} className="p-3 bg-slate-800/50 rounded-lg border border-slate-700/50 flex justify-between items-center group hover:bg-slate-800 transition-colors">
+                <div key={lead.id} className="p-3 bg-slate-50 dark:bg-slate-800/50 rounded-lg border border-slate-100 dark:border-slate-700/50 flex justify-between items-center group hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
                   <div>
-                    <div className="font-medium text-sm text-slate-200">{lead.name}</div>
+                    <div className="font-medium text-sm text-slate-700 dark:text-slate-200">{lead.name}</div>
                     <div className="text-xs text-slate-500 mt-0.5">
                       {format(new Date(lead.followUpDate), "dd/MM")} • {format(new Date(lead.followUpDate), "HH:mm")}
                     </div>
                   </div>
                   {lead.whatsapp && (
-                    <a href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-400 hover:text-green-300 p-2 rounded-full hover:bg-green-500/10 transition-colors">
+                    <a href={`https://wa.me/55${lead.whatsapp.replace(/\D/g, '')}`} target="_blank" rel="noopener noreferrer" className="text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 p-2 rounded-full hover:bg-green-100 dark:hover:bg-green-500/10 transition-colors">
                       <span className="sr-only">Whatsapp</span>
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle"><path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" /></svg>
                     </a>
@@ -206,7 +209,7 @@ export default async function CalendarPage() {
                 </div>
               ))}
             {leadsWithFollowUp.filter((l: any) => new Date(l.followUpDate) > endOfDay(new Date())).length === 0 && (
-              <p className="text-xs text-slate-500 italic text-center py-4">Sem agendamentos futuros</p>
+              <p className="text-xs text-slate-400 italic text-center py-4">Sem agendamentos futuros</p>
             )}
           </div>
         </div>
