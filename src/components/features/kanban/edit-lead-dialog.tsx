@@ -159,6 +159,9 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                     <SelectItem value="Meta">Meta</SelectItem>
                     <SelectItem value="Captação Ativa">Captação Ativa</SelectItem>
                     <SelectItem value="Organicos">Orgânicos</SelectItem>
+                    <SelectItem value="">
+                      <span className="text-slate-400">Sem Origem</span>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>
