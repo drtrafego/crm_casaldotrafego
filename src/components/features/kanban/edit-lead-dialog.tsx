@@ -28,7 +28,18 @@ interface EditLeadDialogProps {
 
 export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps) {
   const [isDeleting, setIsDeleting] = useState(false);
-  const [source, setSource] = useState(lead.campaignSource || "");
+  // Normalize source to match restricted Select options (Capitalized)
+  // If the source (e.g. 'adwords') is not in our list, we might want to show it?
+  // For now, let's try to match case-insensitive or default to "no_source" to prevent crashes if value doesn't match items
+  const validSources = ["Google", "Meta", "Captação Ativa", "Organicos"];
+
+  const getInitialSource = () => {
+    if (!lead.campaignSource) return "no_source";
+    const match = validSources.find(s => s.toLowerCase() === lead.campaignSource?.toLowerCase());
+    return match || "no_source"; // Safety fallback: if source is unknown, force user to re-select or show empty to avoid crash
+  };
+
+  const [source, setSource] = useState(getInitialSource());
   const router = useRouter();
 
   async function handleSubmit(formData: FormData) {
@@ -149,8 +160,8 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                 <Label htmlFor="campaignSource" className="text-slate-700 dark:text-slate-300 flex items-center gap-2">
                   <Megaphone className="h-4 w-4 text-slate-400" /> Origem
                 </Label>
-                <input type="hidden" name="campaignSource" value={source} />
-                <Select value={source} onValueChange={setSource}>
+                <input type="hidden" name="campaignSource" value={source === "no_source" ? "" : source} />
+                <Select value={source || "no_source"} onValueChange={setSource}>
                   <SelectTrigger className="bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-800">
                     <SelectValue placeholder="Selecione a origem" />
                   </SelectTrigger>
@@ -159,9 +170,7 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
                     <SelectItem value="Meta">Meta</SelectItem>
                     <SelectItem value="Captação Ativa">Captação Ativa</SelectItem>
                     <SelectItem value="Organicos">Orgânicos</SelectItem>
-                    <SelectItem value="">
-                      <span className="text-slate-400">Sem Origem</span>
-                    </SelectItem>
+                    <SelectItem value="no_source">Sem Origem</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
