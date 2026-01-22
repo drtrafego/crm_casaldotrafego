@@ -60,7 +60,7 @@ export function LeadCard({ lead }: LeadCardProps) {
     }
   };
 
-  const currentSource = CAMPAIGN_SOURCES.find(s => s.value === lead.campaignSource) ||
+  const currentSource = CAMPAIGN_SOURCES.find(s => s.value.toLowerCase() === (lead.campaignSource || '').toLowerCase()) ||
     (lead.campaignSource ? { label: lead.campaignSource, value: lead.campaignSource, color: "bg-slate-100 text-slate-700 border-slate-200" } : null);
 
   if (isDragging) {
@@ -128,6 +128,15 @@ export function LeadCard({ lead }: LeadCardProps) {
                               </div>
                             </CommandItem>
                           ))}
+                          <CommandItem
+                            value="clear_source"
+                            onSelect={() => handleSourceSelect("")}
+                            className="text-xs p-1"
+                          >
+                            <div className="w-full px-2 py-1.5 rounded-md border border-slate-200 dark:border-slate-800 text-slate-500 text-center hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
+                              Remover Origem
+                            </div>
+                          </CommandItem>
                         </CommandGroup>
                       </CommandList>
                     </Command>
