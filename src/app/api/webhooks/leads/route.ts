@@ -1,7 +1,10 @@
 import { db } from "@/lib/db";
 import { leads, columns } from "@/server/db/schema";
-import { eq, asc } from "drizzle-orm";
+import { asc } from "drizzle-orm";
 import { NextResponse } from "next/server";
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 export async function POST(request: Request) {
   try {
@@ -11,79 +14,65 @@ export async function POST(request: Request) {
       utm_source, utm_medium, utm_campaign, utm_term, utm_content, source
     } = body;
 
-    // Support both phone and whatsapp fields in payload
     const finalWhatsapp = whatsapp || phone;
 
-    // --- UTM Source Classification Logic ---
+    // --- UTM Source Classification Logic (Bulletproof V3) ---
     let normalizedSource = campaignSource;
 
-    console.log("[Webhook] Processing Lead:", name);
-    console.log("[Webhook] Raw Inputs:", { utm_source, source, campaignSource });
+    // Force strict calculation
+    const rawSource = (utm_source || source || "").toLowerCase().trim();
 
-    // If no explicit campaignSource provided, try to infer from UTMs or source
     if (!normalizedSource) {
-      const rawSource = (utm_source || source || "").toLowerCase().trim();
-
-      // Explicit exact matches first for stability
       if (rawSource === 'facebook' || rawSource === 'meta' || rawSource === 'instagram') {
         normalizedSource = "Meta";
       } else if (rawSource === 'google' || rawSource === 'adwords' || rawSource === 'google_ads') {
         normalizedSource = "Google";
       } else if (rawSource) {
-        // Fallback inclusions
         if (rawSource.includes("google")) normalizedSource = "Google";
         else if (rawSource.includes("meta") || rawSource.includes("facebook")) normalizedSource = "Meta";
         else normalizedSource = utm_source || source;
       }
     }
 
-    console.log("[Webhook] Final normalizedSource:", normalizedSource);
-
-    // Basic validation - only name is required
+    // Validation
     if (!name) {
-      return NextResponse.json(
-        { error: "Name is required" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Name is required" }, { status: 400 });
     }
 
-    // Use the SHARED org ID regardless of input
-    // This ensures all incoming leads go to the shared workspace
     const orgId = "bilder_agency_shared";
 
-    // Find ANY "Novos Leads" column regardless of organization
-    // Since we are in Single Tenant Shared Mode, we accept any column.
     let targetColumn = await db.query.columns.findFirst({
       where: (cols, { eq }) => eq(cols.title, "Novos Leads"),
     });
 
     if (!targetColumn) {
-      // Fallback to ANY first column by order
       targetColumn = await db.query.columns.findFirst({
         orderBy: [asc(columns.order)],
       });
     }
 
     if (!targetColumn) {
-      return NextResponse.json(
-        { error: "No columns found for this organization" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "No columns found" }, { status: 500 });
     }
 
-    // Create the lead
+    // Insert with Debug Notes
+    const timestamp = new Date().toISOString();
+    const debugNote = `\n\n[DEBUG V3 CORRECT]\nTimestamp: ${timestamp}\nRaw: '${rawSource}'\nUTM: '${utm_source}'\nFinal: '${normalizedSource}'`;
+
+    // Safety check for notes to be string
+    const currentNotes = typeof notes === 'string' ? notes : "";
+
     const newLead = await db.insert(leads).values({
       name,
       email,
       whatsapp: finalWhatsapp,
       company,
-      notes: (notes || "") + `\n\n[DEBUG Info]\nutm_source: ${utm_source}\nrawSource: ${(utm_source || source || "").toLowerCase()}\nnormalized: ${normalizedSource}`,
+      notes: currentNotes + debugNote,
       campaignSource: normalizedSource,
       organizationId: orgId,
       columnId: targetColumn.id,
       status: "active",
-      position: 0, // Add to top
-      // Persist raw UTM data
+      position: 0,
       utmSource: utm_source || source,
       utmMedium: utm_medium,
       utmCampaign: utm_campaign,
@@ -93,9 +82,6 @@ export async function POST(request: Request) {
     return NextResponse.json({ success: true, lead: newLead[0] });
   } catch (error) {
     console.error("Error processing lead webhook:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
