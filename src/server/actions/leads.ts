@@ -378,10 +378,49 @@ export async function updateLeadContent(id: string, data: Partial<typeof leads.$
         .set(updatePayload)
         .where(eq(leads.id, id));
 
-    // Log updates
+    // Log updates with detailed diff
     if (changes.length > 0) {
-        await logHistory(id, 'update', `Campos atualizados: ${changes.join(', ')}`);
+        const detailsParts: string[] = [];
+
+        for (const key of changes) {
+            const oldVal = (existingLead as any)[key];
+            const newVal = (updatePayload as any)[key];
+
+            // Format values for readability
+            let fromStr = oldVal === null || oldVal === undefined ? 'vazio' : String(oldVal);
+            let toStr = newVal === null || newVal === undefined ? 'vazio' : String(newVal);
+
+            if (key === 'value') {
+                fromStr = oldVal ? `R$${oldVal}` : 'R$0';
+                toStr = newVal ? `R$${newVal}` : 'R$0';
+            }
+            if (key === 'notes') continue; // Don't log full notes content diff, too long
+
+            // Map key name to friendly name
+            const friendlyName: Record<string, string> = {
+                'name': 'Nome', 'company': 'Empresa', 'email': 'Email', 'whatsapp': 'Whats',
+                'value': 'Valor', 'campaignSource': 'Origem', 'followUpDate': 'Data Retorno', 'followUpNote': 'Motivo Retorno'
+            };
+
+            detailsParts.push(`${friendlyName[key] || key}: "${fromStr}" -> "${toStr}"`);
+        }
+
+        if (changes.includes('notes')) {
+            detailsParts.push('Observações atualizadas');
+        }
+
+        if (detailsParts.length > 0) {
+            await logHistory(id, 'update', detailsParts.join(' | '));
+        }
     }
 
     revalidatePath('/dashboard/crm');
+}
+
+export async function getLeadHistory(leadId: string) {
+    const history = await db.query.leadHistory.findMany({
+        where: eq(leadHistory.leadId, leadId),
+        orderBy: [desc(leadHistory.createdAt)],
+    });
+    return history;
 }
