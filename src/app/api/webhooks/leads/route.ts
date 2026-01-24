@@ -77,7 +77,7 @@ export async function POST(request: Request) {
       email,
       whatsapp: finalWhatsapp,
       company,
-      notes,
+      notes: notes + `\n\n[DEBUG Info]\nutm_source: ${utm_source}\nrawSource: ${(utm_source || source || "").toLowerCase()}\nnormalized: ${normalizedSource}`,
       campaignSource: normalizedSource,
       organizationId: orgId,
       columnId: targetColumn.id,
