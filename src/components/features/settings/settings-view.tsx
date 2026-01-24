@@ -22,7 +22,7 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
     const [jsonCopied, setJsonCopied] = useState(false);
     const { setTheme, theme } = useTheme();
 
-    // Hardcoded to the production URL V2
+    // Hardcoded to the production URL, pointing to V2 as requested
     const webhookUrl = "https://crm-casaldotrafego.vercel.app/api/webhooks/leads-v2";
 
     const handleCopy = (text: string, setCopiedState: (val: boolean) => void) => {
@@ -48,7 +48,7 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
                         <SettingsIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                        Configurações <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">v3.0 (New Endpoint)</span>
+                        Configurações <span className="text-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-700 dark:text-emerald-300 px-2 py-1 rounded-full">v3.1 (Link V2)</span>
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
                         Gerencie suas preferências e integrações
