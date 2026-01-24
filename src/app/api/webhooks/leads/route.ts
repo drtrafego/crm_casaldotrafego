@@ -17,9 +17,13 @@ export async function POST(request: Request) {
     // --- UTM Source Classification Logic ---
     let normalizedSource = campaignSource;
 
+    console.log("[Webhook] Processing Lead:", name);
+    console.log("[Webhook] Raw Inputs:", { utm_source, source, campaignSource });
+
     // If no explicit campaignSource provided, try to infer from UTMs or source
     if (!normalizedSource) {
       const rawSource = (utm_source || source || "").toLowerCase();
+      console.log("[Webhook] Calculated rawSource:", rawSource);
 
       if (rawSource) {
         if (rawSource.includes("google") || rawSource.includes("adwords")) {
@@ -32,6 +36,8 @@ export async function POST(request: Request) {
         }
       }
     }
+
+    console.log("[Webhook] Final normalizedSource:", normalizedSource);
 
     // Basic validation - only name is required
     if (!name) {
