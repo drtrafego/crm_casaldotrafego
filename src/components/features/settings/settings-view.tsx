@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,13 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
     const [jsonCopied, setJsonCopied] = useState(false);
     const { setTheme, theme } = useTheme();
 
-    const webhookUrl = "https://seu-crm.com/api/webhooks/leads";
+    const [webhookUrl, setWebhookUrl] = useState("Carregando...");
+
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setWebhookUrl(`${window.location.origin}/api/webhooks/leads`);
+        }
+    }, []);
 
     const handleCopy = (text: string, setCopiedState: (val: boolean) => void) => {
         navigator.clipboard.writeText(text);
@@ -47,7 +53,7 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
                         <SettingsIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                        Configurações
+                        Configurações <span className="text-xs bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full">v2.1 (Debug)</span>
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
                         Gerencie suas preferências e integrações
