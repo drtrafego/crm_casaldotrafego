@@ -60,8 +60,22 @@ export function LeadCard({ lead }: LeadCardProps) {
     }
   };
 
-  const currentSource = CAMPAIGN_SOURCES.find(s => s.value.toLowerCase() === (lead.campaignSource || '').toLowerCase()) ||
-    (lead.campaignSource ? { label: lead.campaignSource, value: lead.campaignSource, color: "bg-slate-100 text-slate-700 border-slate-200" } : null);
+  // Calculate normalized source on the fly if campaignSource is missing but utmSource exists
+  const getNormalizedSource = () => {
+    if (lead.campaignSource) return lead.campaignSource;
+
+    // Fallback logic matching the webhook strategy
+    const raw = (lead.utmSource || "").toLowerCase().trim();
+    if (raw === 'facebook' || raw === 'meta' || raw === 'instagram' || raw.includes('facebook') || raw.includes('meta')) return "Meta";
+    if (raw === 'google' || raw === 'adwords' || raw === 'google_ads' || raw.includes('google') || raw.includes('adwords')) return "Google";
+
+    return lead.campaignSource; // Return original if no match
+  }
+
+  const normalizedSourceStr = getNormalizedSource();
+
+  const currentSource = CAMPAIGN_SOURCES.find(s => s.value.toLowerCase() === (normalizedSourceStr || '').toLowerCase()) ||
+    (normalizedSourceStr ? { label: normalizedSourceStr, value: normalizedSourceStr, color: "bg-slate-100 text-slate-700 border-slate-200" } : null);
 
   if (isDragging) {
     return (

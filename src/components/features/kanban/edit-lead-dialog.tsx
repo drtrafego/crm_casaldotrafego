@@ -34,9 +34,18 @@ export function EditLeadDialog({ lead, open, onOpenChange }: EditLeadDialogProps
   const validSources = ["Google", "Meta", "Captação Ativa", "Organicos"];
 
   const getInitialSource = () => {
-    if (!lead.campaignSource) return "no_source";
-    const match = validSources.find(s => s.toLowerCase() === lead.campaignSource?.toLowerCase());
-    return match || "no_source"; // Safety fallback: if source is unknown, force user to re-select or show empty to avoid crash
+    let rawSource = lead.campaignSource;
+
+    // Fallback normalization if campaignSource is missing
+    if (!rawSource && lead.utmSource) {
+      const utm = lead.utmSource.toLowerCase().trim();
+      if (utm.includes('facebook') || utm.includes('meta') || utm.includes('instagram')) rawSource = "Meta";
+      else if (utm.includes('google') || utm.includes('adwords')) rawSource = "Google";
+    }
+
+    if (!rawSource) return "no_source";
+    const match = validSources.find(s => s.toLowerCase() === rawSource?.toLowerCase());
+    return match || "no_source"; // Safety fallback
   };
 
   const [source, setSource] = useState(getInitialSource());
