@@ -42,7 +42,19 @@ export const settings = pgTable("settings", {
   viewMode: text("view_mode").default('kanban'), // Persist view preference
 });
 
+export const leadHistory = pgTable("lead_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  leadId: uuid("lead_id").references(() => leads.id, { onDelete: 'cascade' }).notNull(),
+  userId: text("user_id"), // Can be null (e.g. Webhook)
+  action: text("action").notNull(), // 'create', 'move', 'update', 'delete'
+  fromColumn: uuid("from_column"),
+  toColumn: uuid("to_column"),
+  details: text("details"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export type Lead = typeof leads.$inferSelect;
 export type NewLead = typeof leads.$inferInsert;
 export type Column = typeof columns.$inferSelect;
 export type Settings = typeof settings.$inferSelect;
+export type LeadHistory = typeof leadHistory.$inferSelect;

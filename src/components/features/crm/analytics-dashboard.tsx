@@ -131,6 +131,15 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
             })
             .map(c => c.id);
 
+        const getLeadSource = (lead: any) => {
+            if (lead.campaignSource) return lead.campaignSource;
+            // Fallback normalization
+            const raw = (lead.utmSource || "").toLowerCase().trim();
+            if (raw === 'facebook' || raw === 'meta' || raw === 'instagram' || raw.includes('facebook') || raw.includes('meta')) return "Meta";
+            if (raw === 'google' || raw === 'adwords' || raw === 'google_ads' || raw.includes('google') || raw.includes('adwords')) return "Google";
+            return "Direto";
+        };
+
         // 2. Filter Leads
         const filtered = initialLeads.filter(lead => {
             if (dateRange?.from) {
@@ -141,7 +150,7 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
                 })) return false;
             }
             if (selectedSource !== "all") {
-                const src = lead.campaignSource || "Direto";
+                const src = getLeadSource(lead);
                 if (src !== selectedSource) return false;
             }
             if (selectedState !== "all") {
@@ -152,7 +161,7 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
         });
 
         // 3. Metadata
-        const uniqueSrc = Array.from(new Set(initialLeads.map(l => l.campaignSource || "Direto"))).sort();
+        const uniqueSrc = Array.from(new Set(initialLeads.map(l => getLeadSource(l)))).sort();
 
         // 4. Calculate KPIs
         const totalLeads = filtered.length;
@@ -176,7 +185,7 @@ export function AnalyticsDashboard({ initialLeads, columns }: AnalyticsDashboard
         // 5. Source Performance
         const srcPerfMap = new Map();
         filtered.forEach(lead => {
-            const src = lead.campaignSource || "Direto";
+            const src = getLeadSource(lead);
             if (!srcPerfMap.has(src)) srcPerfMap.set(src, { source: src, leads: 0, won: 0, lost: 0, revenue: 0 });
             const entry = srcPerfMap.get(src);
             entry.leads++;

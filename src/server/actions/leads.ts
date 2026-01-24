@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from "@/lib/db";
-import { leads, columns } from "@/server/db/schema";
+import { leads, columns, leadHistory } from "@/server/db/schema";
 import { eq, asc, desc, and, ne, lt, gt, inArray } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
@@ -11,6 +11,33 @@ async function getOrgId() {
     // HARDCODED FOR SINGLE TENANT MODE
     // This ensures ALL users see the same data (shared workspace)
     return "bilder_agency_shared";
+}
+
+// --- History Helper ---
+export async function logHistory(
+    leadId: string,
+    action: 'create' | 'move' | 'update' | 'delete',
+    details: string,
+    fromColumn?: string,
+    toColumn?: string
+) {
+    let userId: string | null = null;
+
+    try {
+        const user = await stackServerApp.getUser();
+        userId = user?.id || null;
+    } catch (e) {
+        // Ignore auth errors (e.g. called from webhook)
+    }
+
+    await db.insert(leadHistory).values({
+        leadId,
+        userId,
+        action,
+        details,
+        fromColumn: fromColumn || null,
+        toColumn: toColumn || null
+    });
 }
 
 // Helper to unify columns from multiple organizations
@@ -64,6 +91,11 @@ export async function getColumns() {
 }
 
 export async function deleteLead(id: string) {
+    // Log before delete (will be cascaded but useful if we ever change strategy)
+    // Actually cascade deletes the history too. 
+    // If we want to keep history of deleted leads, we must NOT use cascade or use a separate archive table.
+    // For now, following schema provided by user with cascade.
+
     await db.delete(leads).where(eq(leads.id, id));
     revalidatePath('/dashboard/crm');
 }
@@ -103,12 +135,23 @@ export async function updateLeadStatus(id: string, newColumnId: string, newPosit
             console.log(`[updateLeadStatus] Remapped column ${newColumnId} -> ${targetColumnId}`);
         }
 
+        // Get Previous State for History
+        const currentLead = await db.query.leads.findFirst({
+            where: eq(leads.id, id),
+            columns: { columnId: true, name: true }
+        });
+
         await db.update(leads)
             .set({
                 columnId: targetColumnId,
                 position: newPosition
             })
             .where(eq(leads.id, id));
+
+        // Log History
+        if (currentLead && currentLead.columnId !== targetColumnId) {
+            await logHistory(id, 'move', `Lead movido de coluna`, currentLead.columnId || undefined, targetColumnId);
+        }
 
         revalidatePath('/dashboard/crm');
         console.log(`[updateLeadStatus] Success`);
@@ -138,7 +181,7 @@ export async function createLead(formData: FormData) {
         throw new Error("No columns found");
     }
 
-    await db.insert(leads).values({
+    const inserted = await db.insert(leads).values({
         name,
         company,
         email,
@@ -149,7 +192,11 @@ export async function createLead(formData: FormData) {
         columnId: firstColumn.id,
         organizationId: orgId,
         position: 0, // Add to top
-    });
+    }).returning(); // Return to get ID
+
+    if (inserted && inserted[0]) {
+        await logHistory(inserted[0].id, 'create', `Lead criado manualmente: ${name}`, undefined, firstColumn.id);
+    }
 
     revalidatePath('/dashboard/crm');
 }
@@ -265,12 +312,15 @@ export async function updateLeadContent(id: string, data: Partial<typeof leads.$
     ];
 
     const updatePayload: Partial<typeof leads.$inferInsert> = {};
+    const changes: string[] = [];
 
     // Only copy allowed fields
     for (const key of allowedFields) {
         if (data[key] !== undefined) {
             // @ts-ignore - dynamic assignment
             updatePayload[key] = data[key];
+            // Simple logging - assuming scalar values
+            changes.push(key);
         }
     }
 
@@ -327,6 +377,11 @@ export async function updateLeadContent(id: string, data: Partial<typeof leads.$
     await db.update(leads)
         .set(updatePayload)
         .where(eq(leads.id, id));
+
+    // Log updates
+    if (changes.length > 0) {
+        await logHistory(id, 'update', `Campos atualizados: ${changes.join(', ')}`);
+    }
 
     revalidatePath('/dashboard/crm');
 }

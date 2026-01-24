@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { leads, columns } from "@/server/db/schema";
+import { leads, columns, leadHistory } from "@/server/db/schema";
 import { asc } from "drizzle-orm";
 import { NextResponse } from "next/server";
 
@@ -78,6 +78,17 @@ export async function POST(request: Request) {
       utmCampaign: utm_campaign,
       pagePath: body.page_path,
     }).returning();
+
+    // Log History
+    if (newLead[0]) {
+      await db.insert(leadHistory).values({
+        leadId: newLead[0].id,
+        action: 'create',
+        details: `Lead criado via Webhook (V1)`,
+        toColumn: targetColumn.id,
+        userId: null
+      });
+    }
 
     return NextResponse.json({ success: true, lead: newLead[0] });
   } catch (error) {
