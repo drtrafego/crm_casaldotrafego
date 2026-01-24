@@ -22,18 +22,18 @@ export async function POST(request: Request) {
 
     // If no explicit campaignSource provided, try to infer from UTMs or source
     if (!normalizedSource) {
-      const rawSource = (utm_source || source || "").toLowerCase();
-      console.log("[Webhook] Calculated rawSource:", rawSource);
+      const rawSource = (utm_source || source || "").toLowerCase().trim();
 
-      if (rawSource) {
-        if (rawSource.includes("google") || rawSource.includes("adwords")) {
-          normalizedSource = "Google";
-        } else if (rawSource.includes("meta") || rawSource.includes("facebook") || rawSource.includes("instagram")) {
-          normalizedSource = "Meta";
-        } else {
-          // Fallback to the raw value if it doesn't match known patterns
-          normalizedSource = utm_source || source;
-        }
+      // Explicit exact matches first for stability
+      if (rawSource === 'facebook' || rawSource === 'meta' || rawSource === 'instagram') {
+        normalizedSource = "Meta";
+      } else if (rawSource === 'google' || rawSource === 'adwords' || rawSource === 'google_ads') {
+        normalizedSource = "Google";
+      } else if (rawSource) {
+        // Fallback inclusions
+        if (rawSource.includes("google")) normalizedSource = "Google";
+        else if (rawSource.includes("meta") || rawSource.includes("facebook")) normalizedSource = "Meta";
+        else normalizedSource = utm_source || source;
       }
     }
 

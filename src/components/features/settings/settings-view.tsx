@@ -22,13 +22,8 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
     const [jsonCopied, setJsonCopied] = useState(false);
     const { setTheme, theme } = useTheme();
 
-    const [webhookUrl, setWebhookUrl] = useState("Carregando...");
-
-    useEffect(() => {
-        if (typeof window !== "undefined") {
-            setWebhookUrl(`${window.location.origin}/api/webhooks/leads`);
-        }
-    }, []);
+    // Hardcoded to the production URL to avoid client-side hydration delays/errors
+    const webhookUrl = "https://crm-casaldotrafego.vercel.app/api/webhooks/leads";
 
     const handleCopy = (text: string, setCopiedState: (val: boolean) => void) => {
         navigator.clipboard.writeText(text);
