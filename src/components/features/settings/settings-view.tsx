@@ -22,8 +22,8 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
     const [jsonCopied, setJsonCopied] = useState(false);
     const { setTheme, theme } = useTheme();
 
-    // Hardcoded to the production URL to avoid client-side hydration delays/errors
-    const webhookUrl = "https://crm-casaldotrafego.vercel.app/api/webhooks/leads";
+    // Hardcoded to the production URL V2
+    const webhookUrl = "https://crm-casaldotrafego.vercel.app/api/webhooks/leads-v2";
 
     const handleCopy = (text: string, setCopiedState: (val: boolean) => void) => {
         navigator.clipboard.writeText(text);
@@ -48,7 +48,7 @@ export function SettingsView({ user, orgId }: SettingsViewProps) {
                 <div>
                     <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-3">
                         <SettingsIcon className="h-8 w-8 text-indigo-600 dark:text-indigo-400" />
-                        Configurações <span className="text-xs bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 px-2 py-1 rounded-full">v2.1 (Debug)</span>
+                        Configurações <span className="text-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 px-2 py-1 rounded-full">v3.0 (New Endpoint)</span>
                     </h1>
                     <p className="text-slate-500 dark:text-slate-400 mt-1 text-lg">
                         Gerencie suas preferências e integrações
